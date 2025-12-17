@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -43,6 +43,20 @@ export default function Dashboard() {
     }
   };
 
+  const handleDeleteProject = async (e, projectId) => {
+    e.preventDefault();
+    e.stopPropagation(); // Prevent opening the project
+    if (!window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) return;
+
+    try {
+      await axios.delete(`http://localhost:3000/api/projects/${projectId}`);
+      setProjects(projects.filter(p => p.id !== projectId));
+    } catch (error) {
+      console.error("Failed to delete project", error);
+      alert("Failed to delete project");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-sm">
@@ -76,9 +90,18 @@ export default function Dashboard() {
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {projects.map((project) => (
-              <div key={project.id} className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow">
+              <div key={project.id} className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow relative group">
                 <div className="p-6">
-                  <h3 className="text-lg font-medium text-gray-900 truncate">{project.name}</h3>
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-lg font-medium text-gray-900 truncate flex-1">{project.name}</h3>
+                    <button
+                      onClick={(e) => handleDeleteProject(e, project.id)}
+                      className="text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                      title="Delete Project"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </div>
                   <p className="mt-1 text-sm text-gray-500">{project.description || 'No description'}</p>
                   <div className="mt-4">
                     <Link
