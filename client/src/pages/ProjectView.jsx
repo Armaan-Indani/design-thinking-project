@@ -83,6 +83,12 @@ export default function ProjectView() {
                           <div className="flex items-center text-sm font-medium text-blue-900">
                             <FileText className="w-4 h-4 mr-2" />
                             {doc.template.title}
+                            {(() => {
+                                try {
+                                  const content = JSON.parse(doc.content || '{}');
+                                  return content.userType ? <span className="ml-2 font-normal text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full text-xs">{content.userType}</span> : null;
+                                } catch (e) { return null; }
+                            })()}
                           </div>
                           <div className="text-xs text-blue-500 mt-1">
                             Last updated: {new Date(doc.updatedAt).toLocaleDateString()}

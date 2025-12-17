@@ -13,6 +13,7 @@ const templates = [
     phase: 'Empathize',
     content: {
       sections: [
+        { id: 'userType', label: 'User Type', type: 'text', placeholder: 'e.g. Student, Professional, Admin' },
         { id: 'says', label: 'Says', type: 'textarea', placeholder: 'What are some quotes and defining words?' },
         { id: 'thinks', label: 'Thinks', type: 'textarea', placeholder: 'What is occupying their thoughts?' },
         { id: 'does', label: 'Does', type: 'textarea', placeholder: 'What actions and behaviors have you noticed?' },
@@ -26,6 +27,7 @@ const templates = [
     phase: 'Empathize',
     content: {
       sections: [
+        { id: 'userType', label: 'User Type', type: 'text', placeholder: 'e.g. Student, Professional, Admin' },
         { id: 'name', label: 'Name', type: 'text', placeholder: 'Persona Name' },
         { id: 'bio', label: 'Bio', type: 'textarea', placeholder: 'Short biography' },
         { id: 'demographics', label: 'Demographics', type: 'text', placeholder: 'Age, Occupation, Location' },
@@ -40,6 +42,7 @@ const templates = [
     phase: 'Empathize',
     content: {
       sections: [
+        { id: 'userType', label: 'User Type', type: 'text', placeholder: 'e.g. Student, Professional, Admin' },
         { id: 'stage1', label: 'Stage 1: Awareness', type: 'textarea', placeholder: 'Actions, thoughts, feelings...' },
         { id: 'stage2', label: 'Stage 2: Consideration', type: 'textarea', placeholder: 'Actions, thoughts, feelings...' },
         { id: 'stage3', label: 'Stage 3: Decision', type: 'textarea', placeholder: 'Actions, thoughts, feelings...' },
@@ -54,6 +57,7 @@ const templates = [
     phase: 'Empathize',
     content: {
       sections: [
+        { id: 'userType', label: 'User Type', type: 'text', placeholder: 'e.g. Student, Professional, Admin' },
         { id: 'participant', label: 'Participant Info', type: 'text', placeholder: 'Name/Role' },
         { id: 'notes', label: 'Interview Notes', type: 'textarea', placeholder: 'Key takeaways...' },
         { id: 'quotes', label: 'Key Quotes', type: 'textarea', placeholder: '"..."' },
@@ -67,6 +71,7 @@ const templates = [
     phase: 'Empathize',
     content: {
       sections: [
+        { id: 'userType', label: 'User Type', type: 'text', placeholder: 'e.g. Student, Professional, Admin' },
         { id: 'questions', label: 'Questions', type: 'textarea', placeholder: '1. What is your first question?\n2. What is your second question?\n...' },
       ]
     }
@@ -247,7 +252,13 @@ async function main() {
       });
       console.log(`Created template: ${template.title} (${template.phase})`);
     } else {
-      console.log(`Skipping existing template: ${t.title} (${t.phase})`);
+      console.log(`Updating existing template: ${t.title} (${t.phase})`);
+      await prisma.template.update({
+        where: { id: existing.id },
+        data: {
+          content: JSON.stringify(t.content)
+        }
+      });
     }
   }
   console.log('Seeding finished.');
