@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { ChevronRight, FileText } from 'lucide-react';
+import { ChevronRight, FileText, Trash2 } from 'lucide-react';
 
 const STAGES = ['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'];
 
@@ -30,6 +30,19 @@ export default function ProjectView() {
       console.error("Failed to load project data", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteDocument = async (e, docId) => {
+    e.preventDefault();
+    if (!window.confirm("Are you sure you want to delete this document?")) return;
+
+    try {
+      await axios.delete(`http://localhost:3000/api/documents/${docId}`);
+      setDocuments(documents.filter(d => d.id !== docId));
+    } catch (error) {
+      console.error("Failed to delete document", error);
+      alert("Failed to delete document");
     }
   };
 
@@ -62,19 +75,27 @@ export default function ProjectView() {
                   {documents
                     .filter(doc => doc.template.phase === stage)
                     .map(doc => (
-                      <Link
-                        key={doc.id}
-                        to={`/document/${doc.id}`}
-                        className="block p-3 bg-blue-50 border border-blue-100 rounded hover:shadow-sm transition-all"
-                      >
-                        <div className="flex items-center text-sm font-medium text-blue-900">
-                          <FileText className="w-4 h-4 mr-2" />
-                          {doc.template.title}
-                        </div>
-                        <div className="text-xs text-blue-500 mt-1">
-                          Last updated: {new Date(doc.updatedAt).toLocaleDateString()}
-                        </div>
-                      </Link>
+                      <div key={doc.id} className="relative group">
+                        <Link
+                          to={`/document/${doc.id}`}
+                          className="block p-3 bg-blue-50 border border-blue-100 rounded hover:shadow-sm transition-all pr-8"
+                        >
+                          <div className="flex items-center text-sm font-medium text-blue-900">
+                            <FileText className="w-4 h-4 mr-2" />
+                            {doc.template.title}
+                          </div>
+                          <div className="text-xs text-blue-500 mt-1">
+                            Last updated: {new Date(doc.updatedAt).toLocaleDateString()}
+                          </div>
+                        </Link>
+                        <button
+                          onClick={(e) => handleDeleteDocument(e, doc.id)}
+                          className="absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity bg-white/50 hover:bg-white rounded"
+                          title="Delete document"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     ))}
                   {documents.filter(doc => doc.template.phase === stage).length === 0 && (
                      <div className="text-xs text-gray-400 italic">No documents yet</div>
