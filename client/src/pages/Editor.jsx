@@ -5,6 +5,7 @@ import * as htmlToImage from 'html-to-image';
 import jsPDF from 'jspdf';
 import { Download, Eye, EyeOff } from 'lucide-react';
 import VisualRenderer from '../components/VisualRenderer';
+import IdeaCategorization from '../components/editors/IdeaCategorization';
 
 
 export default function Editor() {
@@ -201,7 +202,13 @@ export default function Editor() {
              <strong>Guidance:</strong> {template.description}
            </div>
 
-           <div className="space-y-8">
+           {template.title === 'Idea Categorization' ? (
+              <IdeaCategorization 
+                content={formData} 
+                onUpdate={(newData) => setFormData(newData)} 
+              />
+           ) : (
+             <div className="space-y-8">
              {sections.map((section) => (
                <div key={section.id} className="bg-white border rounded-lg p-6 shadow-sm">
                  <label className="block text-lg font-medium text-gray-900 mb-2">
@@ -226,6 +233,7 @@ export default function Editor() {
                </div>
              ))}
            </div>
+           )}
         </div>
 
         {/* Right Side: Visual Preview */}

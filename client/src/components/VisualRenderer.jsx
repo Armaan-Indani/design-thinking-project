@@ -164,6 +164,49 @@ const VisualRenderer = ({ template, content, innerRef }) => {
     );
   }
 
+  // --- Idea Categorization (Board Layout) ---
+  if (template.title === 'Idea Categorization') {
+    const categories = data.categories || [];
+    
+    return (
+      <div ref={innerRef} style={{ ...baseStyle, padding: '32px' }}>
+        <h1 style={h1Style}>{template.title}</h1>
+        <p style={{ fontSize: '18px', marginBottom: '32px', color: colors.gray500 }}>{template.description}</p>
+        
+        <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
+            {categories.filter(c => c.items.length > 0 || c.id !== 'uncategorized').map(cat => (
+                <div key={cat.id} style={{ 
+                    flex: '1', 
+                    minWidth: '200px', 
+                    padding: '16px', 
+                    borderRadius: '8px', 
+                    backgroundColor: colors.gray100,
+                    border: `1px solid ${colors.gray200}` 
+                }}>
+                    <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', color: colors.gray700 }}>{cat.title}</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {cat.items.map(item => (
+                            <div key={item.id} style={{ 
+                                padding: '12px', 
+                                backgroundColor: '#fef3c7', // yellow-200
+                                border: '1px solid #fde047', // yellow-300
+                                borderRadius: '4px',
+                                fontSize: '14px',
+                                color: colors.gray900,
+                                whiteSpace: 'pre-wrap',
+                                wordBreak: 'break-word'
+                            }}>
+                                {item.content}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+      </div>
+    );
+  }
+
   // --- Default List Layout ---
   const sections = template.content && typeof template.content === 'string' 
     ? JSON.parse(template.content).sections 

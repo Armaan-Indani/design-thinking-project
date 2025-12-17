@@ -142,11 +142,8 @@ const templates = [
     description: 'Sort ideas into categories.',
     phase: 'Ideate',
     content: {
-      sections: [
-        { id: 'now', label: 'Blue (Now)', type: 'textarea', placeholder: 'Easy to implement, high impact' },
-        { id: 'how', label: 'Yellow (How/Wow)', type: 'textarea', placeholder: 'Innovative, ground-breaking' },
-        { id: 'ciao', label: 'Red (Ciao)', type: 'textarea', placeholder: 'Impossible or low impact' },
-      ]
+      // Custom editor manages the structure internally (categories array)
+      description: 'The editor will initialize default categories.'
     }
   },
   {
