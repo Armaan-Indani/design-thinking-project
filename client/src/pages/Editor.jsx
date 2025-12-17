@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import * as htmlToImage from 'html-to-image';
-import jsPDF from 'jspdf';
 import { Download, Eye, EyeOff } from 'lucide-react';
 import VisualRenderer from '../components/VisualRenderer';
 import IdeaCategorization from '../components/editors/IdeaCategorization';
@@ -116,33 +115,18 @@ export default function Editor() {
           display: 'block',
           transform: 'none' // Ensure no transforms move it away
         },
-        width: 800, // Explicitly match the min-width
+        width: input.scrollWidth + 50, // Capture full width with buffer
         height: input.scrollHeight // Capture full height
       });
-      const pdf = new jsPDF({
-        orientation: 'p',
-        unit: 'mm',
-        format: 'a4',
-      });
 
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      
-      const img = new Image();
-      img.src = imgData;
-      await new Promise((resolve) => { img.onload = resolve; });
-
-      const imgWidth = img.width;
-      const imgHeight = img.height;
-      
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const pdfImgHeight = (imgHeight * pdfWidth) / imgWidth;
-
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfImgHeight);
-      pdf.save(`${template.title.replace(/\s+/g, '_')}_Export.pdf`);
+      // Create download link
+      const link = document.createElement('a');
+      link.download = `${template.title.replace(/\s+/g, '_')}_Export.png`;
+      link.href = imgData;
+      link.click();
     } catch (err) {
       console.error("Export failed", err);
-      alert("Failed to export PDF: " + err.message);
+      alert("Failed to export Image: " + err.message);
     }
   };
 
@@ -187,10 +171,10 @@ export default function Editor() {
           <button
             onClick={handleExport}
             className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900 flex items-center"
-            title="Export as PDF"
+            title="Export as Image"
           >
             <Download className="w-4 h-4 mr-2" />
-            Export
+            Export PNG
           </button>
         </div>
       </header>
