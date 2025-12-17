@@ -101,7 +101,6 @@ const VisualRenderer = ({ template, content, innerRef }) => {
             </div>
             <div style={{ flex: 1 }}>
               <h1 style={{ fontSize: '36px', fontWeight: 'bold', marginBottom: '8px', color: colors.gray900 }}>{data.name || 'Persona Name'}</h1>
-              <p style={{ fontSize: '20px', fontStyle: 'italic', color: colors.gray600, marginBottom: '16px' }}>"{data.bio ? data.bio.slice(0, 50) + '...' : 'Bio placeholder'}"</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', fontSize: '14px', padding: '16px', borderRadius: '4px', backgroundColor: colors.white, border: `1px solid ${colors.gray200}` }}>
                  <div style={{ color: colors.gray800 }}><strong>Demographics:</strong> {data.demographics || 'N/A'}</div>
                  <div style={{ color: colors.gray800 }}><strong>Role:</strong> {data.role || 'N/A'}</div>
