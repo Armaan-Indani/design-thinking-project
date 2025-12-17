@@ -61,6 +61,16 @@ const templates = [
       ]
     }
   },
+  {
+    title: 'Questionnaire',
+    description: 'List of questions to ask during user research.',
+    phase: 'Empathize',
+    content: {
+      sections: [
+        { id: 'questions', label: 'Questions', type: 'textarea', placeholder: '1. What is your first question?\n2. What is your second question?\n...' },
+      ]
+    }
+  },
 
   // --- Define Phase ---
   {

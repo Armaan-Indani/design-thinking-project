@@ -129,6 +129,41 @@ const VisualRenderer = ({ template, content, innerRef }) => {
     );
   }
 
+  // --- Questionnaire Layout ---
+  if (template.title === 'Questionnaire') {
+    const questions = data.questions ? data.questions.split('\n').filter(q => q.trim() !== '') : [];
+    
+    return (
+      <div ref={innerRef} style={{ ...baseStyle, padding: '48px' }}>
+        <h1 style={h1Style}>{template.title}</h1>
+        <p style={{ fontSize: '18px', marginBottom: '32px', color: colors.gray500 }}>{template.description}</p>
+        
+        <div style={{ padding: '32px', backgroundColor: colors.white, border: `1px solid ${colors.gray200}`, borderRadius: '8px', boxShadow: shadowStyle }}>
+          <h3 style={{ ...h3Style, marginBottom: '24px', borderBottom: `1px solid ${colors.gray200}`, paddingBottom: '16px' }}>Research Questions</h3>
+          {questions.length > 0 ? (
+            <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+              {questions.map((q, idx) => (
+                <li key={idx} style={{ 
+                  marginBottom: '16px', 
+                  padding: '16px', 
+                  backgroundColor: idx % 2 === 0 ? colors.gray50 : colors.white,
+                  borderLeft: `4px solid ${colors.blue500}`,
+                  borderRadius: '4px',
+                  fontSize: '16px',
+                  color: colors.gray800
+                }}>
+                  {q}
+                </li>
+              ))}
+            </ul>
+          ) : (
+             <p style={{ fontStyle: 'italic', color: colors.gray400 }}>No questions added yet.</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // --- Default List Layout ---
   const sections = template.content && typeof template.content === 'string' 
     ? JSON.parse(template.content).sections 
