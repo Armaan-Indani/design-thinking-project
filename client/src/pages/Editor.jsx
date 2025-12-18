@@ -6,6 +6,7 @@ import { Download, Eye, EyeOff } from 'lucide-react';
 import VisualRenderer from '../components/VisualRenderer';
 import IdeaCategorization from '../components/editors/IdeaCategorization';
 import UserJourneyMap from '../components/editors/UserJourneyMap';
+import PaperPrototypeCanvas from '../components/editors/PaperPrototypeCanvas';
 
 
 export default function Editor() {
@@ -160,14 +161,16 @@ export default function Editor() {
             {saving ? 'Saving...' : 'Save Document'}
           </button>
           
-          <button
-            onClick={() => setShowPreview(!showPreview)}
-            className="px-4 py-2 text-gray-600 hover:text-gray-900 flex items-center border border-gray-300 rounded"
-            title={showPreview ? "Hide Preview" : "Show Preview"}
-          >
-            {showPreview ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-            {showPreview ? "Hide Preview" : "Show Preview"}
-          </button>
+          {template.title !== 'Paper Prototypes' && (
+            <button
+              onClick={() => setShowPreview(!showPreview)}
+              className="px-4 py-2 text-gray-600 hover:text-gray-900 flex items-center border border-gray-300 rounded"
+              title={showPreview ? "Hide Preview" : "Show Preview"}
+            >
+              {showPreview ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+              {showPreview ? "Hide Preview" : "Show Preview"}
+            </button>
+          )}
           
           <button
             onClick={handleExport}
@@ -182,7 +185,7 @@ export default function Editor() {
 
       <main className="flex-1 flex overflow-hidden">
         {/* Left Side: Form Editor */}
-        <div className={`flex-1 overflow-y-auto p-8 transition-all duration-300 ${showPreview ? 'w-1/2 border-r' : 'w-full'}`}>
+        <div className={`flex-1 overflow-y-auto p-8 transition-all duration-300 ${showPreview && template.title !== 'Paper Prototypes' ? 'w-1/2 border-r' : 'w-full'}`}>
            <div className="bg-blue-50 p-4 rounded-md mb-8 text-blue-800 text-sm whitespace-pre-wrap">
              <strong>Guidance:</strong> {template.description}
            </div>
@@ -194,6 +197,11 @@ export default function Editor() {
               />
            ) : template.title === 'User Journey Map' ? (
               <UserJourneyMap 
+                content={formData} 
+                onUpdate={(newData) => setFormData(newData)} 
+              />
+           ) : template.title === 'Paper Prototypes' ? (
+              <PaperPrototypeCanvas 
                 content={formData} 
                 onUpdate={(newData) => setFormData(newData)} 
               />
@@ -227,7 +235,7 @@ export default function Editor() {
         </div>
 
         {/* Right Side: Visual Preview */}
-        {showPreview && (
+        {showPreview && template.title !== 'Paper Prototypes' && (
           <div className="w-1/2 bg-gray-100 overflow-y-auto p-8 flex justify-center items-start">
             <div className="bg-white shadow-lg origin-top scale-[0.6] sm:scale-[0.8] lg:scale-100 transition-transform">
               <VisualRenderer template={template} content={formData} />

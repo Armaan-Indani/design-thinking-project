@@ -343,6 +343,222 @@ const VisualRenderer = ({ template, content, innerRef }) => {
     );
   }
 
+
+  // --- Paper Prototypes Layout ---
+  if (template.title === 'Paper Prototypes') {
+     // NOTE: For full fidelity export, we might want to capture the actual ReactFlow instance.
+     // However, since VisualRenderer is used for the "Preview" pane *and* the hidden export container,
+     // we can try to render the nodes visually here, or (simpler) just rely on the Editor's view for export 
+     // if we change how export works. 
+     // FOR NOW: We will replicate a simple visual representation of the nodes without React Flow interaction,
+     // to ensure it renders in the export container.
+
+      const nodes = data.nodes || [];
+      const edges = data.edges || [];
+
+      // 1. Calculate bounding box to normalize positions (prevent overlap with title)
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxBottom = 0;
+
+      if (nodes.length > 0) {
+        nodes.forEach(node => {
+            if (node.position.x < minX) minX = node.position.x;
+            if (node.position.y < minY) minY = node.position.y;
+        });
+      } else {
+          minX = 0;
+          minY = 0;
+      }
+
+      // Add a margin buffer (e.g., 20px) to the normalized positions
+      const BUFFER = 20;
+
+      // Helper: Get Normalized Position
+      const getNormPos = (pos) => ({
+          x: pos.x - minX + BUFFER,
+          y: pos.y - minY + BUFFER
+      });
+
+      // Helper to get node center (using normalized positions)
+      const getNodeCenter = (node) => {
+          if (!node) return { x: 0, y: 0 };
+          const pos = getNormPos(node.position);
+          
+          // Width: Use style.width (resizing) or default
+          let w = 0;
+          let h = 0;
+          
+          if (node.type === 'prototype') {
+             w = 288; // w-72
+             h = 350; // Approximated height
+          } else if (node.type === 'note') {
+             // Parse width/height from style if present (e.g. "200px"), else default
+             w = node.style?.width ? parseInt(node.style.width) : 192; 
+             h = node.style?.height ? parseInt(node.style.height) : 150;
+          }
+
+          return {
+             x: pos.x + w / 2,
+             y: pos.y + h / 2
+          };
+      };
+
+      const nodeMap = new Map(nodes.map(n => [n.id, n]));
+
+      // Calculate container height based on normalized nodes
+      nodes.forEach(node => {
+          const pos = getNormPos(node.position);
+          const h = node.type === 'prototype' ? 350 : (node.style?.height ? parseInt(node.style.height) : 200);
+          const bottom = pos.y + h;
+          if (bottom > maxBottom) maxBottom = bottom;
+      });
+
+      // Ensure minHeight
+      const containerHeight = Math.max(800, maxBottom + 100);
+
+      return (
+         <div ref={innerRef} style={{ ...baseStyle, padding: '32px', minHeight: `${containerHeight}px`, position: 'relative', backgroundColor: '#f8fafc' }}>
+            <h1 style={h1Style}>{template.title}</h1>
+            <p style={{ fontSize: '18px', marginBottom: '32px', color: colors.gray500 }}>{template.description}</p>
+            
+            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+               {/* Edges Layer (SVG) */}
+               <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}>
+                  <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                      <polygon points="0 0, 10 3.5, 0 7" fill={colors.gray400} />
+                    </marker>
+                  </defs>
+                  {edges.map(edge => {
+                      const sourceNode = nodeMap.get(edge.source);
+                      const targetNode = nodeMap.get(edge.target);
+                      if (!sourceNode || !targetNode) return null;
+
+                      const start = getNodeCenter(sourceNode);
+                      const end = getNodeCenter(targetNode);
+                      
+                      const midX = (start.x + end.x) / 2;
+                      const midY = (start.y + end.y) / 2;
+                      const label = edge.data?.label || '';
+
+                      return (
+                          <g key={edge.id}>
+                              {/* Edge Line */}
+                              <line 
+                                x1={start.x} y1={start.y}
+                                x2={end.x} y2={end.y}
+                                stroke={colors.gray400}
+                                strokeWidth="2"
+                                markerEnd="url(#arrowhead)"
+                              />
+                              
+                              {/* Label (if exists) */}
+                              {label && (
+                                <g>
+                                    {/* Simple background rect approx size */}
+                                    <rect 
+                                        x={midX - (label.length * 4)} 
+                                        y={midY - 10} 
+                                        width={label.length * 8} 
+                                        height="20" 
+                                        fill="white" 
+                                        opacity="0.9"
+                                        rx="4"
+                                    />
+                                    <text
+                                        x={midX}
+                                        y={midY}
+                                        textAnchor="middle"
+                                        alignmentBaseline="middle" // dominant-baseline isn't always reliable in some parsers, alignment-baseline + dy is safer or just use central
+                                        dominantBaseline="middle"
+                                        fill={colors.gray800}
+                                        fontSize="12"
+                                        fontWeight="500"
+                                    >
+                                        {label}
+                                    </text>
+                                </g>
+                              )}
+                          </g>
+                      );
+                  })}
+               </svg>
+
+               {/* Nodes Layer */}
+               {nodes.map(node => {
+                   const pos = getNormPos(node.position);
+
+                   if (node.type === 'prototype') {
+                       return (
+                           <div key={node.id} style={{
+                               position: 'absolute',
+                               left: pos.x,
+                               top: pos.y,
+                               width: '288px', // w-72
+                               border: `2px solid ${colors.gray200}`,
+                               borderRadius: '8px',
+                               backgroundColor: colors.white,
+                               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                               zIndex: 10
+                           }}>
+                               {/* Header */}
+                               <div style={{ padding: '8px', borderBottom: `1px solid ${colors.gray200}`, backgroundColor: colors.gray50, display: 'flex', justifyContent: 'space-between' }}>
+                                   <span style={{ fontSize: '12px', fontWeight: 'bold', color: colors.gray500, textTransform: 'uppercase' }}>{node.data.screenType || 'Screen'}</span>
+                               </div>
+                               {/* Image */}
+                               <div style={{ height: '160px', backgroundColor: colors.gray100, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                   {node.data.image ? (
+                                       <img src={node.data.image} alt="Prototype" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                   ) : (
+                                       <span style={{ color: colors.gray400, fontSize: '12px' }}>No Image</span>
+                                   )}
+                               </div>
+                               {/* Content */}
+                               <div style={{ padding: '12px' }}>
+                                   <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>{node.data.title || 'Untitled'}</div>
+                                   <div style={{ display: 'flex', gap: '8px', fontSize: '12px', marginBottom: '8px' }}>
+                                       <span style={{ padding: '2px 4px', border: `1px solid ${colors.gray200}`, borderRadius: '4px' }}>{node.data.status || 'Draft'}</span>
+                                       {node.data.flowStep && <span style={{ padding: '2px 4px', border: `1px solid ${colors.gray200}`, borderRadius: '4px' }}>Step {node.data.flowStep}</span>}
+                                   </div>
+                                   <p style={{ fontSize: '12px', color: colors.gray600 }}>{node.data.description}</p>
+                               </div>
+                           </div>
+                       );
+                   }
+                   if (node.type === 'note') {
+                        // Respect Resizing
+                        const w = node.style?.width || '192px';
+                        const h = node.style?.height || 'auto';
+
+                        return (
+                           <div key={node.id} style={{
+                               position: 'absolute',
+                               left: pos.x,
+                               top: pos.y,
+                               width: w, 
+                               height: h,
+                               minHeight: '100px',
+                               padding: '16px',
+                               borderRadius: '8px',
+                               border: '1px solid #fef08a', // yellow-200
+                               backgroundColor: '#fef9c3', // yellow-100
+                               boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                               zIndex: 10,
+                               boxSizing: 'border-box'
+                           }}>
+                               <div style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 'bold', color: '#ca8a04', marginBottom: '8px' }}>Note</div>
+                               <p style={{ fontSize: '14px', color: '#1f2937', whiteSpace: 'pre-wrap' }}>{node.data.label}</p>
+                           </div>
+                        );
+                   }
+                   return null;
+               })}
+            </div>
+         </div>
+      );
+  }
+
   // --- Default List Layout ---
   const sections = template.content && typeof template.content === 'string' 
     ? JSON.parse(template.content).sections 

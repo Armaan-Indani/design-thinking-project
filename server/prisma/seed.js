@@ -155,14 +155,11 @@ const templates = [
   // --- Prototype Phase ---
   {
     title: 'Paper Prototypes',
-    description: 'Sketch out screens and flows.',
+    description: 'Sketch out screens and flows. Upload images, annotate, and connect them.',
     phase: 'Prototype',
     content: {
-      sections: [
-        { id: 'screen1', label: 'Screen 1', type: 'textarea', placeholder: 'Describe layout and key elements...' },
-        { id: 'flow1', label: 'Interaction Flow', type: 'textarea', placeholder: 'What happens next?' },
-        { id: 'screen2', label: 'Screen 2', type: 'textarea' },
-      ]
+      // Custom editor manages the structure internally (nodes/edges)
+      description: 'The editor will initialize the canvas.'
     }
   },
   {
