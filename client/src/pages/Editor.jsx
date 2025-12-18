@@ -8,6 +8,7 @@ import IdeaCategorization from '../components/editors/IdeaCategorization';
 import UserJourneyMap from '../components/editors/UserJourneyMap';
 import PaperPrototypeCanvas from '../components/editors/PaperPrototypeCanvas';
 import ThemeToggle from '../components/ThemeToggle';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 
 export default function Editor() {
@@ -18,6 +19,8 @@ export default function Editor() {
   const [showPreview, setShowPreview] = useState(true);
   const [editorWidth, setEditorWidth] = useState(50); // Percentage
   const [isResizing, setIsResizing] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [showSavePrompt, setShowSavePrompt] = useState(false);
   
   // State
   const [template, setTemplate] = useState(null);
@@ -83,6 +86,30 @@ export default function Editor() {
       ...prev,
       [fieldId]: value
     }));
+    setIsDirty(true);
+  };
+
+  const handleContentUpdate = (newData) => {
+    setFormData(newData);
+    setIsDirty(true);
+  };
+
+  const handleBackClick = () => {
+    if (isDirty) {
+      setShowSavePrompt(true);
+    } else {
+      navigate(`/project/${project?.id || doc?.projectId}`);
+    }
+  };
+
+  const handleDiscardChanges = () => {
+    setShowSavePrompt(false);
+    navigate(`/project/${project?.id || doc?.projectId}`);
+  };
+
+  const handleSaveAndExit = async () => {
+    await saveDocument();
+    navigate(`/project/${project?.id || doc?.projectId}`);
   };
 
   const saveDocument = async () => {
@@ -105,7 +132,9 @@ export default function Editor() {
         // Update local state to reflect creation so export works
         setDoc({ ...res.data, template, project });
       }
-      alert('Saved successfully!');
+      setIsDirty(false);
+      // Only show alert if NOT handled by custom flow (wrapper might handle success)
+      if (!showSavePrompt) alert('Saved successfully!');
     } catch (error) {
       console.error("Save failed", error);
       alert('Failed to save');
@@ -176,7 +205,7 @@ export default function Editor() {
         <div className="flex space-x-3">
           <ThemeToggle />
           <button
-            onClick={() => navigate(`/project/${project?.id || doc?.projectId}`)}
+            onClick={handleBackClick}
             className="px-4 py-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
           >
             Back
@@ -224,17 +253,17 @@ export default function Editor() {
            {template.title === 'Idea Categorization' ? (
               <IdeaCategorization 
                 content={formData} 
-                onUpdate={(newData) => setFormData(newData)} 
+                onUpdate={handleContentUpdate} 
               />
            ) : template.title === 'User Journey Map' ? (
               <UserJourneyMap 
                 content={formData} 
-                onUpdate={(newData) => setFormData(newData)} 
+                onUpdate={handleContentUpdate} 
               />
            ) : template.title === 'Paper Prototypes' ? (
               <PaperPrototypeCanvas 
                 content={formData} 
-                onUpdate={(newData) => setFormData(newData)} 
+                onUpdate={handleContentUpdate} 
               />
            ) : (
              <div className="space-y-8">
@@ -303,6 +332,17 @@ export default function Editor() {
              <VisualRenderer template={template} content={formData} />
         </div>
       </main>
+      
+      <ConfirmDialog
+        isOpen={showSavePrompt}
+        title="Unsaved Changes"
+        message="You have unsaved changes. Do you want to save your progress before leaving?"
+        onConfirm={handleSaveAndExit}
+        onDeny={handleDiscardChanges}
+        onCancel={() => setShowSavePrompt(false)}
+        confirmText="Save & Exit"
+        denyText="Discard Changes"
+      />
     </div>
   );
 }
