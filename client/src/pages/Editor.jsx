@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import * as htmlToImage from 'html-to-image';
-import { Download, Eye, EyeOff } from 'lucide-react';
+import { Download, Eye, EyeOff, GripVertical } from 'lucide-react';
 import VisualRenderer from '../components/VisualRenderer';
 import IdeaCategorization from '../components/editors/IdeaCategorization';
 import UserJourneyMap from '../components/editors/UserJourneyMap';
@@ -16,6 +16,8 @@ export default function Editor() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
+  const [editorWidth, setEditorWidth] = useState(50); // Percentage
+  const [isResizing, setIsResizing] = useState(false);
   
   // State
   const [template, setTemplate] = useState(null);
@@ -26,6 +28,30 @@ export default function Editor() {
   useEffect(() => {
     loadData();
   }, [id, projectId, templateId]);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isResizing) return;
+      const newWidth = (e.clientX / window.innerWidth) * 100;
+      if (newWidth > 20 && newWidth < 80) {
+        setEditorWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
 
   const loadData = async () => {
     try {
@@ -185,9 +211,12 @@ export default function Editor() {
         </div>
       </header>
 
-      <main className="flex-1 flex overflow-hidden">
+      <main className="flex-1 flex overflow-hidden relative">
         {/* Left Side: Form Editor */}
-        <div className={`flex-1 overflow-y-auto p-8 transition-all duration-300 bg-white dark:bg-gray-900 ${showPreview && template.title !== 'Paper Prototypes' ? 'w-1/2 border-r dark:border-gray-700' : 'w-full'}`}>
+        <div 
+            className={`overflow-y-auto p-8 transition-all duration-75 bg-white dark:bg-gray-900 ${showPreview && template.title !== 'Paper Prototypes' ? 'border-r dark:border-gray-700' : 'w-full'}`}
+            style={{ width: showPreview && template.title !== 'Paper Prototypes' ? `${editorWidth}%` : '100%' }}
+        >
            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-8 text-blue-800 dark:text-blue-200 text-sm whitespace-pre-wrap">
              <strong>Guidance:</strong> {template.description}
            </div>
@@ -236,9 +265,24 @@ export default function Editor() {
            )}
         </div>
 
+        {/* Resizer Handle */}
+        {showPreview && template.title !== 'Paper Prototypes' && (
+            <div
+                className="w-4 bg-gray-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 cursor-col-resize flex items-center justify-center border-l border-r border-gray-200 dark:border-gray-700 z-20 shrink-0 transition-colors"
+                onMouseDown={() => setIsResizing(true)}
+            >
+                <div className="h-8 w-1 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                    <GripVertical className="h-4 w-4 text-gray-400" />
+                </div>
+            </div>
+        )}
+
         {/* Right Side: Visual Preview */}
         {showPreview && template.title !== 'Paper Prototypes' && (
-          <div className="w-1/2 bg-gray-100 dark:bg-gray-800 overflow-y-auto p-8 flex justify-center items-start">
+          <div 
+            className="bg-gray-100 dark:bg-gray-800 overflow-y-auto p-8 flex justify-center items-start"
+            style={{ width: `${100 - editorWidth}%` }}
+          >
             <div className="bg-white shadow-lg origin-top scale-[0.6] sm:scale-[0.8] lg:scale-100 transition-transform">
               <VisualRenderer template={template} content={formData} />
             </div>
