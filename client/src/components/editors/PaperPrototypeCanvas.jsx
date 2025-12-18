@@ -252,6 +252,10 @@ export default function PaperPrototypeCanvas({ content, onUpdate }) {
   // Initial State from content or default
   const [nodes, setNodes, onNodesChange] = useNodesState(content?.nodes || []);
   const [edges, setEdges, onEdgesChange] = useEdgesState(content?.edges || []);
+  
+  // Instance & Container
+  const [rfInstance, setRfInstance] = useState(null);
+  const containerRef = React.useRef(null);
 
   // Sync to parent on change
   useEffect(() => {
@@ -283,13 +287,29 @@ export default function PaperPrototypeCanvas({ content, onUpdate }) {
   const deleteNode = (id) => {
       setNodes((nds) => nds.filter((n) => n.id !== id));
   };
+  
+  // Helper to get center position
+  const getCenterPos = () => {
+      if (!rfInstance || !containerRef.current) {
+          return { x: 100 + Math.random() * 50, y: 100 + Math.random() * 50 };
+      }
+      const { x, y, zoom } = rfInstance.getViewport();
+      const width = containerRef.current.offsetWidth;
+      const height = containerRef.current.offsetHeight;
+      
+      return {
+          x: (-x + width / 2) / zoom - 100, // Center minus half node width (approx)
+          y: (-y + height / 2) / zoom - 75
+      };
+  };
 
   const addPrototypeCard = () => {
     const id = `card-${Date.now()}`;
+    const pos = getCenterPos();
     const newNode = {
       id,
       type: 'prototype',
-      position: { x: 100 + Math.random() * 50, y: 100 + Math.random() * 50 },
+      position: pos,
       data: { 
           title: `Screen ${nodes.length + 1}`, 
           screenType: '', 
@@ -306,10 +326,11 @@ export default function PaperPrototypeCanvas({ content, onUpdate }) {
 
   const addNote = () => {
     const id = `note-${Date.now()}`;
+    const pos = getCenterPos();
     const newNode = {
         id,
         type: 'note',
-        position: { x: 150 + Math.random() * 50, y: 150 + Math.random() * 50 },
+        position: pos,
         style: { width: 200, height: 150 },
         data: { 
             label: '',
@@ -333,13 +354,14 @@ export default function PaperPrototypeCanvas({ content, onUpdate }) {
   }, []);
 
   return (
-    <div style={{ width: '100%', height: '800px', backgroundColor: '#f8fafc' }}>
+    <div ref={containerRef} style={{ width: '100%', height: '800px', backgroundColor: '#f8fafc' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onInit={setRfInstance}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView

@@ -411,9 +411,14 @@ const VisualRenderer = ({ template, content, innerRef }) => {
 
       const nodeMap = new Map(nodes.map(n => [n.id, n]));
 
-      // Calculate container height
+      // Calculate container dimensions
+      let contentMaxBottom = 0;
+      let maxRight = 0;
+
       nodes.forEach(node => {
           const pos = getNormPos(node.position);
+          
+          // Calculate Height
           let h = 200;
           if (node.type === 'prototype') h = 500;
           else {
@@ -421,12 +426,23 @@ const VisualRenderer = ({ template, content, innerRef }) => {
               h = checkHeight ? parseInt(checkHeight) : 150;
           }
           const bottom = pos.y + h;
-          if (bottom > maxBottom) maxBottom = bottom;
+          if (bottom > contentMaxBottom) contentMaxBottom = bottom;
+
+          // Calculate Width to fix background cutoff
+          let w = 300;
+          if (node.type === 'prototype') {
+              w = 300; 
+          } else {
+              const checkWidth = node.style?.width ?? node.measured?.width ?? node.width;
+              w = checkWidth ? parseInt(checkWidth) : 200;
+          }
+          const right = pos.x + w;
+          if (right > maxRight) maxRight = right;
       });
 
-      // Ensure minHeight with generous bottom margin
-      // Make sure the background covers the full computed height
-      const containerHeight = Math.max(800, maxBottom + 200);
+      // Ensure min dimensions with generous margins
+      const containerHeight = Math.max(800, contentMaxBottom + 200);
+      const containerWidth = Math.max(1200, maxRight + 200); // Default to at least 1200px wide
 
       const getArrowHead = (x1, y1, x2, y2) => {
           // Calculate angle
@@ -463,7 +479,8 @@ const VisualRenderer = ({ template, content, innerRef }) => {
          <div ref={innerRef} style={{ 
              ...baseStyle, 
              padding: '32px', 
-             height: `${containerHeight}px`, // Explicit height instead of minHeight to enforce background coverage
+             height: `${containerHeight}px`, 
+             width: `${containerWidth}px`, // Explicit width to force background coverage
              position: 'relative', 
              backgroundColor: '#f8fafc' 
          }}>
