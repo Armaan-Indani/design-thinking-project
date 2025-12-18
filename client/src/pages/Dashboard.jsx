@@ -152,7 +152,7 @@ export default function Dashboard() {
                   onClick={() => setShowCreateModal(false)}
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                 >
-                  Cancel
+                  Back
                 </button>
                 <button
                   type="submit"

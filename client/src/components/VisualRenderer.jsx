@@ -164,6 +164,48 @@ const VisualRenderer = ({ template, content, innerRef }) => {
     );
   }
 
+  // --- How Might We Questions Layout ---
+  if (template.title === 'How Might We Questions') {
+    const questions = data.questions ? data.questions.split('\n').filter(q => q.trim() !== '') : [];
+    
+    return (
+      <div ref={innerRef} style={{ ...baseStyle, padding: '48px' }}>
+        <h1 style={h1Style}>{template.title}</h1>
+        <p style={{ fontSize: '18px', marginBottom: '32px', color: colors.gray500 }}>{template.description}</p>
+        
+        {/* Core Problem Section */}
+        <div style={{ padding: '32px', backgroundColor: colors.white, border: `1px solid ${colors.gray200}`, borderRadius: '8px', marginBottom: '32px', boxShadow: shadowStyle }}>
+           <h3 style={{ ...h3Style, marginBottom: '16px' }}>Core Problem</h3>
+           <p style={{ ...pStyle, fontSize: '16px', lineHeight: '1.6' }}>{data.problem || <span style={{ fontStyle: 'italic', color: colors.gray400 }}>No problem defined.</span>}</p>
+        </div>
+
+        {/* Questions List */}
+        <div style={{ padding: '32px', backgroundColor: colors.white, border: `1px solid ${colors.gray200}`, borderRadius: '8px', boxShadow: shadowStyle }}>
+          <h3 style={{ ...h3Style, marginBottom: '24px', borderBottom: `1px solid ${colors.gray200}`, paddingBottom: '16px' }}>Questions</h3>
+          {questions.length > 0 ? (
+            <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+              {questions.map((q, idx) => (
+                <li key={idx} style={{ 
+                  marginBottom: '16px', 
+                  padding: '16px', 
+                  backgroundColor: idx % 2 === 0 ? colors.gray50 : colors.white,
+                  borderLeft: `4px solid ${colors.purple500}`,
+                  borderRadius: '4px',
+                  fontSize: '16px',
+                  color: colors.gray800
+                }}>
+                  {q}
+                </li>
+              ))}
+            </ul>
+          ) : (
+             <p style={{ fontStyle: 'italic', color: colors.gray400 }}>No questions added yet.</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // --- Idea Categorization (Board Layout) ---
   if (template.title === 'Idea Categorization') {
     const categories = data.categories || [];

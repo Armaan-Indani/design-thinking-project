@@ -148,14 +148,12 @@ const templates = [
   },
   {
     title: 'How Might We Questions',
-    description: 'Reframe problems as opportunities.',
+    description: 'Reframe problems as opportunities.\nFormula: How Might We + Intended Action (as an action verb) + For + Potential User (as the subject) + So That + Desired Outcome',
     phase: 'Ideate',
     content: {
       sections: [
         { id: 'problem', label: 'Core Problem', type: 'text' },
-        { id: 'hmw1', label: 'How Might We...?', type: 'textarea' },
-        { id: 'hmw2', label: 'How Might We...?', type: 'textarea' },
-        { id: 'hmw3', label: 'How Might We...?', type: 'textarea' },
+        { id: 'questions', label: 'How Might We Questions', type: 'textarea', placeholder: 'Enter multiple questions separated by Enter...' },
       ]
     }
   },
@@ -253,7 +251,8 @@ async function main() {
       await prisma.template.update({
         where: { id: existing.id },
         data: {
-          content: JSON.stringify(t.content)
+          content: JSON.stringify(t.content),
+          description: t.description
         }
       });
     }

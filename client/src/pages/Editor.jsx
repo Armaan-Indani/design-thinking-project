@@ -149,7 +149,7 @@ export default function Editor() {
             onClick={() => navigate(`/project/${project?.id || doc?.projectId}`)}
             className="px-4 py-2 text-gray-600 hover:text-gray-900"
           >
-            Cancel
+            Back
           </button>
           <button
             onClick={saveDocument}
@@ -165,7 +165,7 @@ export default function Editor() {
             title={showPreview ? "Hide Preview" : "Show Preview"}
           >
             {showPreview ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-            {showPreview ? "Hide" : "Preview"}
+            {showPreview ? "Hide Preview" : "Show Preview"}
           </button>
           
           <button
@@ -182,7 +182,7 @@ export default function Editor() {
       <main className="flex-1 flex overflow-hidden">
         {/* Left Side: Form Editor */}
         <div className={`flex-1 overflow-y-auto p-8 transition-all duration-300 ${showPreview ? 'w-1/2 border-r' : 'w-full'}`}>
-           <div className="bg-blue-50 p-4 rounded-md mb-8 text-blue-800 text-sm">
+           <div className="bg-blue-50 p-4 rounded-md mb-8 text-blue-800 text-sm whitespace-pre-wrap">
              <strong>Guidance:</strong> {template.description}
            </div>
 
