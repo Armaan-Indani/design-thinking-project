@@ -13,6 +13,29 @@ import ThemeToggle from '../components/ThemeToggle';
 import ConfirmDialog from '../components/ConfirmDialog';
 import NotFound from './NotFound';
 
+const NO_PREVIEW_TEMPLATES = [
+  'Paper Prototypes',
+  'Storyboarding',
+  'Storyboard',
+  'Feedback Form',
+  'User Interviews',
+  'User Journey Map',
+  'Problem Statement',
+  'User Needs Framework',
+  'How Might We Questions',
+  'Idea Categorization',
+  'SCAMPER',
+  'Usability Testing Checklist',
+  'User Interviews (Validation)'
+];
+
+const FULL_WIDTH_TEMPLATES = [
+  'Idea Categorization',
+  'User Journey Map',
+  'Paper Prototypes',
+  'Storyboarding',
+  'Storyboard'
+];
 
 export default function Editor() {
   const { id, projectId, templateId } = useParams();
@@ -224,7 +247,7 @@ export default function Editor() {
             {saving ? 'Saving...' : 'Save Document'}
           </button>
           
-          {template.title !== 'Paper Prototypes' && template.title !== 'Storyboarding' && template.title !== 'Feedback Form' && (
+          {!NO_PREVIEW_TEMPLATES.includes(template.title) && (
             <button
               onClick={() => setShowPreview(!showPreview)}
               className="px-4 py-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white flex items-center border border-gray-300 dark:border-gray-600 rounded"
@@ -249,8 +272,20 @@ export default function Editor() {
       <main className="flex-1 flex overflow-hidden relative">
         {/* Left Side: Form Editor */}
         <div 
-            className={`overflow-y-auto p-8 transition-all duration-75 bg-white dark:bg-gray-900 ${showPreview && template.title !== 'Paper Prototypes' && template.title !== 'Storyboarding' && template.title !== 'Feedback Form' ? 'border-r dark:border-gray-700' : 'w-full'}`}
-            style={{ width: showPreview && template.title !== 'Paper Prototypes' && template.title !== 'Storyboarding' && template.title !== 'Feedback Form' ? `${editorWidth}%` : '100%' }}
+            className={`overflow-y-auto p-8 transition-all duration-75 bg-white dark:bg-gray-900 ${
+              showPreview && !NO_PREVIEW_TEMPLATES.includes(template.title) 
+                ? 'border-r dark:border-gray-700' 
+                : FULL_WIDTH_TEMPLATES.includes(template.title)
+                  ? 'w-full'
+                  : 'w-[80%] mx-auto'
+            }`}
+            style={{ 
+              width: showPreview && !NO_PREVIEW_TEMPLATES.includes(template.title) 
+                ? `${editorWidth}%` 
+                : FULL_WIDTH_TEMPLATES.includes(template.title)
+                  ? '100%'
+                  : '80%' 
+            }}
         >
            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-8 text-blue-800 dark:text-blue-200 text-sm whitespace-pre-wrap">
              <strong>Guidance:</strong> {template.description}
@@ -311,7 +346,7 @@ export default function Editor() {
         </div>
 
         {/* Resizer Handle */}
-        {showPreview && template.title !== 'Paper Prototypes' && template.title !== 'Storyboarding' && template.title !== 'Feedback Form' && (
+        {showPreview && !NO_PREVIEW_TEMPLATES.includes(template.title) && (
             <div
                 className="w-4 bg-gray-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 cursor-col-resize flex items-center justify-center border-l border-r border-gray-200 dark:border-gray-700 z-20 shrink-0 transition-colors"
                 onMouseDown={() => setIsResizing(true)}
@@ -323,7 +358,7 @@ export default function Editor() {
         )}
 
         {/* Right Side: Visual Preview */}
-        {showPreview && template.title !== 'Paper Prototypes' && template.title !== 'Storyboarding' && template.title !== 'Feedback Form' && (
+        {showPreview && !NO_PREVIEW_TEMPLATES.includes(template.title) && (
           <div 
             className="bg-gray-100 dark:bg-gray-800 overflow-y-auto p-8 flex justify-center items-start"
             style={{ width: `${100 - editorWidth}%` }}

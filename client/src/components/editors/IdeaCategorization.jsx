@@ -42,7 +42,7 @@ function SortableItem({ id, content, onDelete }) {
       style={style}
       {...attributes}
       {...listeners}
-      className="bg-yellow-200 p-3 mb-2 rounded shadow-sm text-sm border border-yellow-300 relative group cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow"
+      className="bg-yellow-200 dark:bg-yellow-900/40 p-3 mb-2 rounded shadow-sm text-sm border border-yellow-300 dark:border-yellow-700/50 text-yellow-900 dark:text-yellow-100 relative group cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow"
     >
       <div className="pr-6 break-words whitespace-pre-wrap">{content}</div>
       <button
@@ -332,7 +332,7 @@ export default function IdeaCategorization({ content, onUpdate }) {
 
           <DragOverlay dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.5' } } }) }}>
             {activeItem ? (
-                <div className="bg-yellow-200 p-3 rounded shadow-lg text-sm border border-yellow-300 transform rotate-2 cursor-grabbing w-[250px]">
+                <div className="bg-yellow-200 dark:bg-yellow-900/40 p-3 rounded shadow-lg text-sm border border-yellow-300 dark:border-yellow-700/50 text-yellow-900 dark:text-yellow-100 transform rotate-2 cursor-grabbing w-[250px]">
                   {activeItem.content}
                 </div>
             ) : null}

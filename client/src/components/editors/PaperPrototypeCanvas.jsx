@@ -116,7 +116,7 @@ const PrototypeNode = ({ data, id, selected }) => {
   };
 
   return (
-    <div className={`shadow-lg rounded-lg bg-white border-2 w-72 transition-all ${selected ? 'border-blue-500 ring-4 ring-blue-100' : 'border-gray-200'}`}>
+    <div className={`shadow-lg rounded-lg bg-white dark:bg-gray-800 border-2 w-72 transition-all ${selected ? 'border-blue-500 ring-4 ring-blue-100 dark:ring-blue-900' : 'border-gray-200 dark:border-gray-700'}`}>
       {/* Handles for all sides to enable flexible connections */}
       <Handle type="target" position={Position.Top} id="t" className="w-3 h-3 bg-blue-500" />
       <Handle type="target" position={Position.Left} id="l" className="w-3 h-3 bg-blue-500" />
@@ -124,10 +124,10 @@ const PrototypeNode = ({ data, id, selected }) => {
       <Handle type="source" position={Position.Bottom} id="b" className="w-3 h-3 bg-blue-500" />
       
       {/* Header / grip */}
-      <div className="bg-gray-50 border-b p-2 rounded-t-lg flex items-center justify-between cursor-move drag-handle">
+      <div className="bg-gray-50 dark:bg-gray-900 border-b dark:border-gray-700 p-2 rounded-t-lg flex items-center justify-between cursor-move drag-handle">
          <div className="flex items-center text-gray-400">
             <GripVertical size={16} />
-            <span className="text-xs font-semibold ml-1 uppercase tracking-wider text-gray-500">{data.screenType || 'Screen'}</span>
+            <span className="text-xs font-semibold ml-1 uppercase tracking-wider text-gray-500 dark:text-gray-400">{data.screenType || 'Screen'}</span>
          </div>
          <button onClick={() => data.onDelete(id)} className="text-gray-400 hover:text-red-500">
            <Trash2 size={16} />
@@ -135,7 +135,7 @@ const PrototypeNode = ({ data, id, selected }) => {
       </div>
 
       {/* Image Area */}
-      <div className="h-40 bg-gray-100 flex items-center justify-center overflow-hidden relative group">
+      <div className="h-40 bg-gray-100 dark:bg-gray-900 flex items-center justify-center overflow-hidden relative group">
         {data.image ? (
           <img src={data.image} alt="Prototype" className="w-full h-full object-contain" />
         ) : (
@@ -161,7 +161,7 @@ const PrototypeNode = ({ data, id, selected }) => {
           value={data.title} 
           onChange={(e) => data.onUpdate(id, { title: e.target.value })}
           placeholder="Screen Title"
-          className="w-full text-sm font-bold border-none p-0 focus:ring-0 placeholder-gray-400"
+          className="w-full text-sm font-bold border-none p-0 focus:ring-0 placeholder-gray-400 bg-transparent text-gray-900 dark:text-white"
         />
         
         <div className="grid grid-cols-2 gap-2 text-xs">
@@ -170,14 +170,14 @@ const PrototypeNode = ({ data, id, selected }) => {
              value={data.screenType}
              onChange={(e) => data.onUpdate(id, { screenType: e.target.value })}
              placeholder="Type (e.g. Login)"
-             className="border rounded px-2 py-1"
+             className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
            />
            <input 
              type="text"
              value={data.flowStep}
              onChange={(e) => data.onUpdate(id, { flowStep: e.target.value })}
              placeholder="Step (e.g. 1)"
-             className="border rounded px-2 py-1"
+             className="border rounded px-2 py-1 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white"
            />
         </div>
 
@@ -185,9 +185,9 @@ const PrototypeNode = ({ data, id, selected }) => {
             value={data.status} 
             onChange={(e) => data.onUpdate(id, { status: e.target.value })}
             className={`w-full text-xs rounded border px-2 py-1 font-medium ${
-                data.status === 'Tested' ? 'bg-green-100 text-green-800 border-green-200' :
-                data.status === 'Iterated' ? 'bg-purple-100 text-purple-800 border-purple-200' :
-                'bg-gray-100 text-gray-600 border-gray-200'
+                data.status === 'Tested' ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800' :
+                data.status === 'Iterated' ? 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800' :
+                'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600'
             }`}
         >
             <option value="Draft">Draft</option>
@@ -199,7 +199,7 @@ const PrototypeNode = ({ data, id, selected }) => {
           value={data.description}
           onChange={(e) => data.onUpdate(id, { description: e.target.value })}
           placeholder="Description..."
-          className="w-full text-xs border rounded p-2 resize-none h-16"
+          className="w-full text-xs border rounded p-2 resize-none h-16 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
         />
       </div>
     </div>
@@ -357,7 +357,7 @@ export default function PaperPrototypeCanvas({ content, onUpdate }) {
   const { theme } = useTheme();
 
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '800px' }} className="bg-slate-50 dark:bg-gray-900 transition-colors">
+    <div ref={containerRef} style={{ width: '100%', height: 'calc(100vh - 250px)', minHeight: '500px' }} className="bg-slate-50 dark:bg-gray-900 transition-colors">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -371,7 +371,7 @@ export default function PaperPrototypeCanvas({ content, onUpdate }) {
       >
         <Controls />
         <MiniMap />
-        <Background gap={16} size={1} color={theme === 'dark' ? '#334155' : '#e2e8f0'} />
+        <Background gap={16} size={1} color={theme === 'dark' ? '#334155' : '#cbd5e1'} />
         
         <Panel position="top-right" className="bg-white dark:bg-gray-800 dark:border-gray-700 p-2 rounded shadow-md border flex gap-2">
             <button onClick={addPrototypeCard} className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium">
