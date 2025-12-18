@@ -630,6 +630,49 @@ const VisualRenderer = ({ template, content, innerRef }) => {
       );
   }
 
+  // --- Storyboarding Layout ---
+  if (template.title === 'Storyboarding' || template.title === 'Storyboard') {
+      const frames = data.frames || [];
+      return (
+        <div ref={innerRef} style={{ ...baseStyle, padding: '32px' }}>
+          <h1 style={h1Style}>{template.title}</h1>
+          <p style={{ fontSize: '18px', marginBottom: '32px', color: colors.gray500 }}>{template.description}</p>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '32px' }}>
+             {frames.map((frame, idx) => (
+                 <div key={frame.id || idx} style={{ border: `1px solid ${colors.gray200}`, borderRadius: '8px', overflow: 'hidden', backgroundColor: colors.white, breakInside: 'avoid' }}>
+                      {/* Image */}
+                      <div style={{ height: '300px', backgroundColor: colors.gray100, borderBottom: `1px solid ${colors.gray200}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {frame.image ? (
+                              <img src={frame.image} alt={`Frame ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                          ) : (
+                              <span style={{ color: colors.gray400 }}>No Image</span>
+                          )}
+                      </div>
+                      {/* Content */}
+                      <div style={{ padding: '20px' }}>
+                          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '12px', color: colors.gray800 }}>Frame {idx + 1}</h3>
+                          
+                          <div style={{ marginBottom: '16px' }}>
+                              <strong style={{ display: 'block', fontSize: '12px', color: colors.gray500, textTransform: 'uppercase' }}>Context</strong>
+                              <p style={{ ...pStyle, marginTop: '4px' }}>{frame.context}</p>
+                          </div>
+                           <div style={{ marginBottom: '16px' }}>
+                              <strong style={{ display: 'block', fontSize: '12px', color: colors.gray500, textTransform: 'uppercase' }}>Action</strong>
+                              <p style={{ ...pStyle, marginTop: '4px' }}>{frame.action}</p>
+                          </div>
+                           <div>
+                              <strong style={{ display: 'block', fontSize: '12px', color: colors.gray500, textTransform: 'uppercase' }}>Outcome</strong>
+                              <p style={{ ...pStyle, marginTop: '4px' }}>{frame.outcome}</p>
+                          </div>
+                      </div>
+                 </div>
+             ))}
+          </div>
+        </div>
+      );
+  }
+
   // --- Default List Layout ---
   const sections = template.content && typeof template.content === 'string' 
     ? JSON.parse(template.content).sections 

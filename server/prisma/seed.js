@@ -167,12 +167,8 @@ const templates = [
     description: 'Visualize the user\'s experience with the solution.',
     phase: 'Prototype',
     content: {
-      sections: [
-        { id: 'panel1', label: 'Scene 1: Context', type: 'textarea', placeholder: 'Setting the scene...' },
-        { id: 'panel2', label: 'Scene 2: Problem', type: 'textarea', placeholder: 'User encounters problem...' },
-        { id: 'panel3', label: 'Scene 3: Solution', type: 'textarea', placeholder: 'Using the prototype...' },
-        { id: 'panel4', label: 'Scene 4: Outcome', type: 'textarea', placeholder: 'Success/Resolution...' },
-      ]
+      // Custom editor manages the structure internally (frames array)
+      description: 'The editor will initialize default frames.'
     }
   },
 

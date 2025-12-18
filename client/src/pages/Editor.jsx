@@ -7,6 +7,7 @@ import VisualRenderer from '../components/VisualRenderer';
 import IdeaCategorization from '../components/editors/IdeaCategorization';
 import UserJourneyMap from '../components/editors/UserJourneyMap';
 import PaperPrototypeCanvas from '../components/editors/PaperPrototypeCanvas';
+import StoryboardEditor from '../components/editors/StoryboardEditor';
 import ThemeToggle from '../components/ThemeToggle';
 import ConfirmDialog from '../components/ConfirmDialog';
 
@@ -218,7 +219,7 @@ export default function Editor() {
             {saving ? 'Saving...' : 'Save Document'}
           </button>
           
-          {template.title !== 'Paper Prototypes' && (
+          {template.title !== 'Paper Prototypes' && template.title !== 'Storyboarding' && (
             <button
               onClick={() => setShowPreview(!showPreview)}
               className="px-4 py-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white flex items-center border border-gray-300 dark:border-gray-600 rounded"
@@ -243,8 +244,8 @@ export default function Editor() {
       <main className="flex-1 flex overflow-hidden relative">
         {/* Left Side: Form Editor */}
         <div 
-            className={`overflow-y-auto p-8 transition-all duration-75 bg-white dark:bg-gray-900 ${showPreview && template.title !== 'Paper Prototypes' ? 'border-r dark:border-gray-700' : 'w-full'}`}
-            style={{ width: showPreview && template.title !== 'Paper Prototypes' ? `${editorWidth}%` : '100%' }}
+            className={`overflow-y-auto p-8 transition-all duration-75 bg-white dark:bg-gray-900 ${showPreview && template.title !== 'Paper Prototypes' && template.title !== 'Storyboarding' ? 'border-r dark:border-gray-700' : 'w-full'}`}
+            style={{ width: showPreview && template.title !== 'Paper Prototypes' && template.title !== 'Storyboarding' ? `${editorWidth}%` : '100%' }}
         >
            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-8 text-blue-800 dark:text-blue-200 text-sm whitespace-pre-wrap">
              <strong>Guidance:</strong> {template.description}
@@ -264,6 +265,11 @@ export default function Editor() {
               <PaperPrototypeCanvas 
                 content={formData} 
                 onUpdate={handleContentUpdate} 
+              />
+           ) : template.title === 'Storyboarding' || template.title === 'Storyboard' ? (
+              <StoryboardEditor 
+                content={formData}
+                onUpdate={handleContentUpdate}
               />
            ) : (
              <div className="space-y-8">
@@ -295,7 +301,7 @@ export default function Editor() {
         </div>
 
         {/* Resizer Handle */}
-        {showPreview && template.title !== 'Paper Prototypes' && (
+        {showPreview && template.title !== 'Paper Prototypes' && template.title !== 'Storyboarding' && (
             <div
                 className="w-4 bg-gray-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 cursor-col-resize flex items-center justify-center border-l border-r border-gray-200 dark:border-gray-700 z-20 shrink-0 transition-colors"
                 onMouseDown={() => setIsResizing(true)}
@@ -307,7 +313,7 @@ export default function Editor() {
         )}
 
         {/* Right Side: Visual Preview */}
-        {showPreview && template.title !== 'Paper Prototypes' && (
+        {showPreview && template.title !== 'Paper Prototypes' && template.title !== 'Storyboarding' && (
           <div 
             className="bg-gray-100 dark:bg-gray-800 overflow-y-auto p-8 flex justify-center items-start"
             style={{ width: `${100 - editorWidth}%` }}
