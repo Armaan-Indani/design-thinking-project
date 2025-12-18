@@ -11,6 +11,7 @@ import StoryboardEditor from '../components/editors/StoryboardEditor';
 import FeedbackEditor from '../components/editors/FeedbackEditor';
 import ThemeToggle from '../components/ThemeToggle';
 import ConfirmDialog from '../components/ConfirmDialog';
+import NotFound from './NotFound';
 
 
 export default function Editor() {
@@ -78,6 +79,9 @@ export default function Editor() {
       }
     } catch (error) {
       console.error("Failed to load editor data", error);
+      if (error.response && error.response.status === 404) {
+        setTemplate(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -191,7 +195,7 @@ export default function Editor() {
   };
 
   if (loading) return <div>Loading editor...</div>;
-  if (!template) return <div>Template not found</div>;
+  if (!template) return <NotFound />; // Render NotFound if template failed to load
 
   const templateContent = typeof template.content === 'string' ? JSON.parse(template.content) : template.content;
 

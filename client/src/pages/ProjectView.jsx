@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { ChevronRight, FileText, Trash2 } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
+import NotFound from './NotFound';
 
 const STAGES = ['Empathize', 'Define', 'Ideate', 'Prototype', 'Test'];
 
@@ -29,6 +30,9 @@ export default function ProjectView() {
       setDocuments(docRes.data);
     } catch (error) {
       console.error("Failed to load project data", error);
+      if (error.response && error.response.status === 404) {
+        setProject(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -48,7 +52,7 @@ export default function ProjectView() {
   };
 
   if (loading) return <div className="p-8">Loading project...</div>;
-  if (!project) return <div className="p-8">Project not found</div>;
+  if (!project) return <NotFound />;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">

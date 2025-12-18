@@ -6,6 +6,7 @@ import Register from './pages/Auth/Register';
 import Dashboard from './pages/Dashboard';
 import ProjectView from './pages/ProjectView';
 import Editor from './pages/Editor';
+import NotFound from './pages/NotFound';
 
 const ProtectedRoute = () => {
   const { user, loading } = useAuth();
@@ -28,6 +29,8 @@ function App() {
               <Route path="/project/:projectId/template/:templateId" element={<Editor />} />
               <Route path="/document/:id" element={<Editor />} />
             </Route>
+
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </ThemeProvider>
       </AuthProvider>
