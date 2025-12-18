@@ -385,17 +385,22 @@ const VisualRenderer = ({ template, content, innerRef }) => {
           if (!node) return { x: 0, y: 0 };
           const pos = getNormPos(node.position);
           
-          // Width: Use style.width (resizing) or default
           let w = 0;
           let h = 0;
           
           if (node.type === 'prototype') {
-             w = 288; // w-72
-             h = 350; // Approximated height
+             w = 288;
+             h = 400; // Estimate
           } else if (node.type === 'note') {
-             // Parse width/height from style if present (e.g. "200px"), else default
-             w = node.style?.width ? parseInt(node.style.width) : 192; 
-             h = node.style?.height ? parseInt(node.style.height) : 150;
+             // Robust width/height check
+             // 1. Try style.width (string or number)
+             // 2. Try node.measured?.width or node.width
+             // 3. Fallback
+             const checkWidth = node.style?.width ?? node.measured?.width ?? node.width;
+             const checkHeight = node.style?.height ?? node.measured?.height ?? node.height;
+             
+             w = checkWidth ? parseInt(checkWidth) : 200;
+             h = checkHeight ? parseInt(checkHeight) : 150;
           }
 
           return {
@@ -406,30 +411,68 @@ const VisualRenderer = ({ template, content, innerRef }) => {
 
       const nodeMap = new Map(nodes.map(n => [n.id, n]));
 
-      // Calculate container height based on normalized nodes
+      // Calculate container height
       nodes.forEach(node => {
           const pos = getNormPos(node.position);
-          const h = node.type === 'prototype' ? 350 : (node.style?.height ? parseInt(node.style.height) : 200);
+          let h = 200;
+          if (node.type === 'prototype') h = 500;
+          else {
+              const checkHeight = node.style?.height ?? node.measured?.height ?? node.height;
+              h = checkHeight ? parseInt(checkHeight) : 150;
+          }
           const bottom = pos.y + h;
           if (bottom > maxBottom) maxBottom = bottom;
       });
 
-      // Ensure minHeight
-      const containerHeight = Math.max(800, maxBottom + 100);
+      // Ensure minHeight with generous bottom margin
+      // Make sure the background covers the full computed height
+      const containerHeight = Math.max(800, maxBottom + 200);
+
+      const getArrowHead = (x1, y1, x2, y2) => {
+          // Calculate angle
+          const angle = Math.atan2(y2 - y1, x2 - x1);
+          const headLen = 10;
+          
+          // Points for a simple arrowhead triangle
+          // Tip at x2, y2
+          // Wings back by headLen
+          
+          // To rotate:
+          // x' = x*cos - y*sin
+          // y' = x*sin + y*cos
+          
+          // Back point on line:
+          const bx = x2 - headLen * Math.cos(angle);
+          const by = y2 - headLen * Math.sin(angle);
+          
+          // Perpendicular offset for width
+          const width = 6;
+          const px = width * Math.cos(angle + Math.PI/2);
+          const py = width * Math.sin(angle + Math.PI/2);
+          
+          const p1x = bx + px;
+          const p1y = by + py;
+          
+          const p2x = bx - px;
+          const p2y = by - py;
+          
+          return `${x2},${y2} ${p1x},${p1y} ${p2x},${p2y}`;
+      };
 
       return (
-         <div ref={innerRef} style={{ ...baseStyle, padding: '32px', minHeight: `${containerHeight}px`, position: 'relative', backgroundColor: '#f8fafc' }}>
+         <div ref={innerRef} style={{ 
+             ...baseStyle, 
+             padding: '32px', 
+             height: `${containerHeight}px`, // Explicit height instead of minHeight to enforce background coverage
+             position: 'relative', 
+             backgroundColor: '#f8fafc' 
+         }}>
             <h1 style={h1Style}>{template.title}</h1>
             <p style={{ fontSize: '18px', marginBottom: '32px', color: colors.gray500 }}>{template.description}</p>
             
             <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                {/* Edges Layer (SVG) */}
                <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}>
-                  <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                      <polygon points="0 0, 10 3.5, 0 7" fill={colors.gray400} />
-                    </marker>
-                  </defs>
                   {edges.map(edge => {
                       const sourceNode = nodeMap.get(edge.source);
                       const targetNode = nodeMap.get(edge.target);
@@ -441,6 +484,10 @@ const VisualRenderer = ({ template, content, innerRef }) => {
                       const midX = (start.x + end.x) / 2;
                       const midY = (start.y + end.y) / 2;
                       const label = edge.data?.label || '';
+                      
+                      // Calculate slight offset for arrowhead so it doesn't overlap exactly if we wanted, 
+                      // but exact point is fine for now if z-index is right. 
+                      // Since transparent nodes, might need to stop short. For now, Draw exactly to center.
 
                       return (
                           <g key={edge.id}>
@@ -450,13 +497,17 @@ const VisualRenderer = ({ template, content, innerRef }) => {
                                 x2={end.x} y2={end.y}
                                 stroke={colors.gray400}
                                 strokeWidth="2"
-                                markerEnd="url(#arrowhead)"
+                              />
+                              
+                              {/* Manual Arrowhead */}
+                              <polygon 
+                                points={getArrowHead(start.x, start.y, end.x, end.y)}
+                                fill={colors.gray400}
                               />
                               
                               {/* Label (if exists) */}
                               {label && (
                                 <g>
-                                    {/* Simple background rect approx size */}
                                     <rect 
                                         x={midX - (label.length * 4)} 
                                         y={midY - 10} 
@@ -470,7 +521,7 @@ const VisualRenderer = ({ template, content, innerRef }) => {
                                         x={midX}
                                         y={midY}
                                         textAnchor="middle"
-                                        alignmentBaseline="middle" // dominant-baseline isn't always reliable in some parsers, alignment-baseline + dy is safer or just use central
+                                        alignmentBaseline="middle" 
                                         dominantBaseline="middle"
                                         fill={colors.gray800}
                                         fontSize="12"
@@ -527,17 +578,20 @@ const VisualRenderer = ({ template, content, innerRef }) => {
                        );
                    }
                    if (node.type === 'note') {
-                        // Respect Resizing
-                        const w = node.style?.width || '192px';
-                        const h = node.style?.height || 'auto';
+                        // Respect Resizing with robust check
+                        const checkWidth = node.style?.width ?? node.measured?.width ?? node.width;
+                        const checkHeight = node.style?.height ?? node.measured?.height ?? node.height;
+                        
+                        const w = checkWidth ? parseInt(checkWidth) : 200;
+                        const h = checkHeight ? parseInt(checkHeight) : 150;
 
                         return (
                            <div key={node.id} style={{
                                position: 'absolute',
                                left: pos.x,
                                top: pos.y,
-                               width: w, 
-                               height: h,
+                               width: `${w}px`, // Explicitly add px
+                               height: `${h}px`,
                                minHeight: '100px',
                                padding: '16px',
                                borderRadius: '8px',
