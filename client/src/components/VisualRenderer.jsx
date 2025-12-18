@@ -249,6 +249,100 @@ const VisualRenderer = ({ template, content, innerRef }) => {
     );
   }
 
+  // --- User Journey Map Table Layout ---
+  if (template.title === 'User Journey Map') {
+    const grid = data.grid || {};
+    const STAGES = ['Awareness', 'Consideration', 'Decision', 'Service', 'Loyalty'];
+    const ROWS = [
+      'Customer Actions',
+      'Touchpoints',
+      'Customer Experience',
+      'Pain Points',
+      'KPIs',
+      'Business Goals',
+      'Team(s) Involved'
+    ];
+    
+    // Light pastel colors for rows
+    const ROW_COLORS = {
+      'Customer Actions': '#fff7ed', // orange-50
+      'Touchpoints': '#eff6ff', // blue-50
+      'Customer Experience': '#f0fdf4', // green-50
+      'Pain Points': '#fef2f2', // red-50
+      'KPIs': '#faf5ff', // purple-50
+      'Business Goals': '#ecfeff', // cyan-50
+      'Team(s) Involved': '#fdf4ff' // fuchsia-50
+    };
+
+    return (
+      <div ref={innerRef} style={{ ...baseStyle, padding: '32px' }}>
+        <h1 style={h1Style}>{template.title}</h1>
+        <p style={{ fontSize: '18px', marginBottom: '32px', color: colors.gray500 }}>{template.description}</p>
+        
+        <div style={{ width: '100%' }}>
+          <table style={{ 
+            width: '100%', 
+            borderCollapse: 'collapse', 
+            border: `1px solid ${colors.gray300}`,
+            fontSize: '14px'
+          }}>
+            <thead>
+              <tr>
+                <th style={{ 
+                  border: `1px solid ${colors.gray300}`, 
+                  padding: '12px', 
+                  backgroundColor: colors.gray100,
+                  textAlign: 'left',
+                  width: '200px',
+                  fontWeight: 'bold',
+                  color: colors.gray800
+                }}>Stage</th>
+                {STAGES.map(stage => (
+                  <th key={stage} style={{ 
+                    border: `1px solid ${colors.gray300}`, 
+                    padding: '12px', 
+                    backgroundColor: '#eff6ff', 
+                    color: '#1e3a8a',
+                    fontWeight: 'bold'
+                  }}>
+                    {stage}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {ROWS.map(row => (
+                <tr key={row}>
+                  <td style={{ 
+                    border: `1px solid ${colors.gray300}`, 
+                    padding: '12px', 
+                    backgroundColor: colors.gray50,
+                    fontWeight: '600',
+                    color: colors.gray800
+                  }}>
+                    {row}
+                  </td>
+                  {STAGES.map(stage => (
+                    <td key={stage} style={{ 
+                      border: `1px solid ${colors.gray300}`, 
+                      padding: '12px',
+                      backgroundColor: ROW_COLORS[row] || '#ffffff',
+                      color: colors.gray900,
+                      verticalAlign: 'top',
+                      whiteSpace: 'pre-wrap'
+                    }}>
+                      {grid[row]?.[stage] || ''}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
   // --- Default List Layout ---
   const sections = template.content && typeof template.content === 'string' 
     ? JSON.parse(template.content).sections 

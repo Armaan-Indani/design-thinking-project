@@ -5,6 +5,7 @@ import * as htmlToImage from 'html-to-image';
 import { Download, Eye, EyeOff } from 'lucide-react';
 import VisualRenderer from '../components/VisualRenderer';
 import IdeaCategorization from '../components/editors/IdeaCategorization';
+import UserJourneyMap from '../components/editors/UserJourneyMap';
 
 
 export default function Editor() {
@@ -188,6 +189,11 @@ export default function Editor() {
 
            {template.title === 'Idea Categorization' ? (
               <IdeaCategorization 
+                content={formData} 
+                onUpdate={(newData) => setFormData(newData)} 
+              />
+           ) : template.title === 'User Journey Map' ? (
+              <UserJourneyMap 
                 content={formData} 
                 onUpdate={(newData) => setFormData(newData)} 
               />

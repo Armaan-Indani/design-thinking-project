@@ -41,14 +41,8 @@ const templates = [
     description: 'Map out the user\'s experience step-by-step.',
     phase: 'Empathize',
     content: {
-      sections: [
-        { id: 'userType', label: 'User Type', type: 'text', placeholder: 'e.g. Student, Professional, Admin' },
-        { id: 'stage1', label: 'Stage 1: Awareness', type: 'textarea', placeholder: 'Actions, thoughts, feelings...' },
-        { id: 'stage2', label: 'Stage 2: Consideration', type: 'textarea', placeholder: 'Actions, thoughts, feelings...' },
-        { id: 'stage3', label: 'Stage 3: Decision', type: 'textarea', placeholder: 'Actions, thoughts, feelings...' },
-        { id: 'stage4', label: 'Stage 4: Usage', type: 'textarea', placeholder: 'Actions, thoughts, feelings...' },
-        { id: 'stage5', label: 'Stage 5: Loyalty', type: 'textarea', placeholder: 'Actions, thoughts, feelings...' },
-      ]
+      // Custom editor manages the structure internally (grid object)
+      description: 'The editor will initialize default stages and rows.'
     }
   },
   {
