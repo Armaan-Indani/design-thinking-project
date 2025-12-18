@@ -190,12 +190,8 @@ const templates = [
     description: 'Collect structured feedback.',
     phase: 'Test',
     content: {
-      sections: [
-        { id: 'likes', label: 'What did they like?', type: 'textarea' },
-        { id: 'dislikes', label: 'What did they dislike?', type: 'textarea' },
-        { id: 'confusion', label: 'What was confusing?', type: 'textarea' },
-        { id: 'requests', label: 'Feature requests', type: 'textarea' },
-      ]
+      // Custom editor manages the structure internally (items array)
+      description: 'The editor will initialize default questions.'
     }
   },
   {

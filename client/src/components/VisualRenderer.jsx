@@ -673,6 +673,35 @@ const VisualRenderer = ({ template, content, innerRef }) => {
       );
   }
 
+  // --- Feedback Form Layout ---
+  if (template.title === 'Feedback Form') {
+      const items = data.items || [];
+      return (
+        <div ref={innerRef} style={{ ...baseStyle, padding: '48px' }}>
+          <h1 style={h1Style}>{template.title}</h1>
+          <p style={{ fontSize: '18px', marginBottom: '32px', color: colors.gray500 }}>{template.description}</p>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+             {items.map((item, idx) => (
+                 <div key={item.id || idx} style={cardStyle}>
+                      <h3 style={{ ...h3Style, marginBottom: '8px' }}>
+                          <span style={{ fontSize: '12px', color: colors.gray500, textTransform: 'uppercase', marginRight: '8px' }}>Q{idx + 1}:</span>
+                          {item.question || <span style={{ fontStyle: 'italic', color: colors.gray400 }}>No Question</span>}
+                      </h3>
+                      <div style={{ padding: '16px', backgroundColor: colors.white, border: `1px solid ${colors.gray200}`, borderRadius: '4px' }}>
+                          <strong style={{ display: 'block', fontSize: '12px', color: colors.gray500, marginBottom: '4px' }}>ANSWER:</strong>
+                          <p style={{ ...pStyle, margin: 0 }}>{item.answer || <span style={{ fontStyle: 'italic', color: colors.gray400 }}>No Answer provided.</span>}</p>
+                      </div>
+                 </div>
+             ))}
+             {items.length === 0 && (
+                 <p style={{ fontStyle: 'italic', color: colors.gray500 }}>No feedback questions added.</p>
+             )}
+          </div>
+        </div>
+      );
+  }
+
   // --- Default List Layout ---
   const sections = template.content && typeof template.content === 'string' 
     ? JSON.parse(template.content).sections 
