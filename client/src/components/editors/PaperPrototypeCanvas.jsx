@@ -18,6 +18,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Trash2, Upload, GripVertical, X } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
 const flowKey = 'paper-prototype-flow';
 
@@ -353,8 +354,10 @@ export default function PaperPrototypeCanvas({ content, onUpdate }) {
       })));
   }, []);
 
+  const { theme } = useTheme();
+
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '800px', backgroundColor: '#f8fafc' }}>
+    <div ref={containerRef} style={{ width: '100%', height: '800px' }} className="bg-slate-50 dark:bg-gray-900 transition-colors">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -368,9 +371,9 @@ export default function PaperPrototypeCanvas({ content, onUpdate }) {
       >
         <Controls />
         <MiniMap />
-        <Background gap={16} size={1} color="#e2e8f0" />
+        <Background gap={16} size={1} color={theme === 'dark' ? '#334155' : '#e2e8f0'} />
         
-        <Panel position="top-right" className="bg-white p-2 rounded shadow-md border flex gap-2">
+        <Panel position="top-right" className="bg-white dark:bg-gray-800 dark:border-gray-700 p-2 rounded shadow-md border flex gap-2">
             <button onClick={addPrototypeCard} className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium">
                 <Upload size={16} /> Add Screen
             </button>

@@ -38,12 +38,12 @@ export default function UserJourneyMap({ content, onUpdate }) {
   return (
     <div className="overflow-x-auto">
       <div className="min-w-[800px]">
-        <table className="w-full border-collapse border border-gray-300 table-fixed">
+        <table className="w-full border-collapse border border-gray-300 dark:border-gray-700 table-fixed">
           <thead>
             <tr>
-              <th className="border border-gray-300 p-2 bg-gray-100 font-bold text-left w-48">Stage</th>
+              <th className="border border-gray-300 dark:border-gray-700 p-2 bg-gray-100 dark:bg-gray-800 dark:text-white font-bold text-left w-48">Stage</th>
               {STAGES.map(stage => (
-                <th key={stage} className="border border-gray-300 p-2 bg-blue-50 text-blue-900 font-bold">
+                <th key={stage} className="border border-gray-300 dark:border-gray-700 p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100 font-bold">
                   {stage}
                 </th>
               ))}
@@ -52,13 +52,13 @@ export default function UserJourneyMap({ content, onUpdate }) {
           <tbody>
             {ROWS.map(row => (
               <tr key={row}>
-                <td className="border border-gray-300 p-2 bg-gray-50 font-medium">
+                <td className="border border-gray-300 dark:border-gray-700 p-2 bg-gray-50 dark:bg-gray-800 dark:text-gray-200 font-medium">
                   {row}
                 </td>
                 {STAGES.map(stage => (
-                  <td key={stage} className="border border-gray-300 p-1">
+                  <td key={stage} className="border border-gray-300 dark:border-gray-700 p-1 bg-white dark:bg-gray-900">
                     <textarea
-                      className="w-full h-24 p-2 text-sm border-none resize-none focus:ring-2 focus:ring-blue-500 rounded"
+                      className="w-full h-24 p-2 text-sm border-none resize-none focus:ring-2 focus:ring-blue-500 rounded bg-transparent text-gray-900 dark:text-white"
                       value={grid[row]?.[stage] || ''}
                       onChange={(e) => handleCellChange(row, stage, e.target.value)}
                       placeholder="..."

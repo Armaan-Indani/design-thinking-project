@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { Plus, Trash2 } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -58,16 +59,17 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <nav className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900">Design Thinking Platform</h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Design Thinking Platform</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Welcome, {user?.name}</span>
-              <button onClick={logout} className="text-gray-500 hover:text-gray-700">Logout</button>
+              <ThemeToggle />
+              <span className="text-gray-700 dark:text-gray-300">Welcome, {user?.name}</span>
+              <button onClick={logout} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Logout</button>
             </div>
           </div>
         </div>
@@ -75,7 +77,7 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">My Projects</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">My Projects</h2>
           <button
             onClick={() => setShowCreateModal(true)}
             className="flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
@@ -90,10 +92,10 @@ export default function Dashboard() {
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {projects.map((project) => (
-              <div key={project.id} className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow relative group">
+              <div key={project.id} className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow relative group border dark:border-gray-700">
                 <div className="p-6">
                   <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-medium text-gray-900 truncate flex-1">{project.name}</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white truncate flex-1">{project.name}</h3>
                     <button
                       onClick={(e) => handleDeleteProject(e, project.id)}
                       className="text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity p-1"
@@ -102,11 +104,11 @@ export default function Dashboard() {
                       <Trash2 className="h-5 w-5" />
                     </button>
                   </div>
-                  <p className="mt-1 text-sm text-gray-500">{project.description || 'No description'}</p>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{project.description || 'No description'}</p>
                   <div className="mt-4">
                     <Link
                       to={`/project/${project.id}`}
-                      className="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                      className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
                     >
                       Open Project &rarr;
                     </Link>
@@ -124,33 +126,33 @@ export default function Dashboard() {
       </main>
 
       {showCreateModal && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-bold mb-4">Create New Project</h3>
+        <div className="fixed inset-0 bg-gray-500 dark:bg-gray-900 bg-opacity-75 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full border dark:border-gray-700">
+            <h3 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Create New Project</h3>
             <form onSubmit={createProject}>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Project Name</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Project Name</label>
                 <input
                   type="text"
                   value={newProjectName}
                   onChange={(e) => setNewProjectName(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   required
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Description</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
                 <textarea
                   value={newProjectDesc}
                   onChange={(e) => setNewProjectDesc(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Back
                 </button>

@@ -67,9 +67,9 @@ function DroppableColumn({ id, title, items, onDelete, isUncategorized }) {
   const { setNodeRef } = useSortable({ id: id, data: { type: 'container' } });
 
   return (
-    <div ref={setNodeRef} className="bg-gray-100 rounded-lg p-3 min-w-[250px] w-full flex flex-col h-full border border-gray-200">
-      <div className="flex justify-between items-center mb-3 pb-2 border-b border-gray-200">
-        <h3 className="font-bold text-gray-700 text-sm">{title}</h3>
+    <div ref={setNodeRef} className="bg-gray-100 dark:bg-gray-800 rounded-lg p-3 min-w-[250px] w-full flex flex-col h-full border border-gray-200 dark:border-gray-700">
+      <div className="flex justify-between items-center mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">
+        <h3 className="font-bold text-gray-700 dark:text-gray-200 text-sm">{title}</h3>
         {!isUncategorized && (
            <button onClick={() => onDelete(id)} className="text-gray-400 hover:text-red-500">
              <X className="w-4 h-4" />
@@ -265,9 +265,9 @@ export default function IdeaCategorization({ content, onUpdate }) {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Input Area */}
-      <div className="bg-white p-4 border-b border-gray-200 flex flex-wrap gap-4 items-end sticky top-0 z-10">
+      <div className="bg-white dark:bg-gray-800 p-4 border-b border-gray-200 dark:border-gray-700 flex flex-wrap gap-4 items-end sticky top-0 z-10">
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-xs font-bold text-gray-700 mb-1">Add New Idea</label>
+          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Add New Idea</label>
           <div className="flex gap-2">
             <input
               type="text"
@@ -275,7 +275,7 @@ export default function IdeaCategorization({ content, onUpdate }) {
               onChange={(e) => setNewIdea(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddIdea(e)}
               placeholder="Type an idea..."
-              className="flex-1 p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+              className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded text-sm focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
             <button
               onClick={handleAddIdea}
@@ -288,7 +288,7 @@ export default function IdeaCategorization({ content, onUpdate }) {
         </div>
         
         <div className="w-[250px]">
-          <label className="block text-xs font-bold text-gray-700 mb-1">Add Category</label>
+          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Add Category</label>
           <div className="flex gap-2">
             <input
               type="text"
@@ -296,7 +296,7 @@ export default function IdeaCategorization({ content, onUpdate }) {
               onChange={(e) => setNewCategory(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAddCategory(e)}
               placeholder="Category name..."
-              className="flex-1 p-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500"
+              className="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded text-sm focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
             <button
               onClick={handleAddCategory}
@@ -310,7 +310,7 @@ export default function IdeaCategorization({ content, onUpdate }) {
       </div>
 
       {/* Board Area */}
-      <div className="flex-1 overflow-x-auto overflow-y-auto p-6 bg-gray-50 flex gap-6">
+      <div className="flex-1 overflow-x-auto overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900 flex gap-6">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

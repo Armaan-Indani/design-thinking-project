@@ -7,6 +7,7 @@ import VisualRenderer from '../components/VisualRenderer';
 import IdeaCategorization from '../components/editors/IdeaCategorization';
 import UserJourneyMap from '../components/editors/UserJourneyMap';
 import PaperPrototypeCanvas from '../components/editors/PaperPrototypeCanvas';
+import ThemeToggle from '../components/ThemeToggle';
 
 
 export default function Editor() {
@@ -140,16 +141,17 @@ export default function Editor() {
   const sections = templateContent.sections || [];
 
   return (
-    <div className="h-screen bg-white flex flex-col overflow-hidden">
-      <header className="border-b px-6 py-4 flex justify-between items-center sticky top-0 bg-white z-10">
+    <div className="h-screen bg-white dark:bg-gray-900 flex flex-col overflow-hidden">
+      <header className="border-b dark:border-gray-700 px-6 py-4 flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800 z-10">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">{template.title}</h1>
-          <p className="text-sm text-gray-500">{project?.name} / {template.phase}</p>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">{template.title}</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{project?.name} / {template.phase}</p>
         </div>
         <div className="flex space-x-3">
+          <ThemeToggle />
           <button
             onClick={() => navigate(`/project/${project?.id || doc?.projectId}`)}
-            className="px-4 py-2 text-gray-600 hover:text-gray-900"
+            className="px-4 py-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
           >
             Back
           </button>
@@ -164,7 +166,7 @@ export default function Editor() {
           {template.title !== 'Paper Prototypes' && (
             <button
               onClick={() => setShowPreview(!showPreview)}
-              className="px-4 py-2 text-gray-600 hover:text-gray-900 flex items-center border border-gray-300 rounded"
+              className="px-4 py-2 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white flex items-center border border-gray-300 dark:border-gray-600 rounded"
               title={showPreview ? "Hide Preview" : "Show Preview"}
             >
               {showPreview ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
@@ -185,8 +187,8 @@ export default function Editor() {
 
       <main className="flex-1 flex overflow-hidden">
         {/* Left Side: Form Editor */}
-        <div className={`flex-1 overflow-y-auto p-8 transition-all duration-300 ${showPreview && template.title !== 'Paper Prototypes' ? 'w-1/2 border-r' : 'w-full'}`}>
-           <div className="bg-blue-50 p-4 rounded-md mb-8 text-blue-800 text-sm whitespace-pre-wrap">
+        <div className={`flex-1 overflow-y-auto p-8 transition-all duration-300 bg-white dark:bg-gray-900 ${showPreview && template.title !== 'Paper Prototypes' ? 'w-1/2 border-r dark:border-gray-700' : 'w-full'}`}>
+           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-8 text-blue-800 dark:text-blue-200 text-sm whitespace-pre-wrap">
              <strong>Guidance:</strong> {template.description}
            </div>
 
@@ -208,8 +210,8 @@ export default function Editor() {
            ) : (
              <div className="space-y-8">
              {sections.map((section) => (
-               <div key={section.id} className="bg-white border rounded-lg p-6 shadow-sm">
-                 <label className="block text-lg font-medium text-gray-900 mb-2">
+               <div key={section.id} className="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg p-6 shadow-sm">
+                 <label className="block text-lg font-medium text-gray-900 dark:text-gray-200 mb-2">
                    {section.label}
                  </label>
                  {section.type === 'textarea' ? (
@@ -217,7 +219,7 @@ export default function Editor() {
                      value={formData[section.id] || ''}
                      onChange={(e) => handleInputChange(section.id, e.target.value)}
                      placeholder={section.placeholder}
-                     className="w-full h-32 p-3 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                     className="w-full h-32 p-3 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                    />
                  ) : (
                    <input
@@ -225,7 +227,7 @@ export default function Editor() {
                      value={formData[section.id] || ''}
                      onChange={(e) => handleInputChange(section.id, e.target.value)}
                      placeholder={section.placeholder}
-                     className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                     className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                    />
                  )}
                </div>
@@ -236,7 +238,7 @@ export default function Editor() {
 
         {/* Right Side: Visual Preview */}
         {showPreview && template.title !== 'Paper Prototypes' && (
-          <div className="w-1/2 bg-gray-100 overflow-y-auto p-8 flex justify-center items-start">
+          <div className="w-1/2 bg-gray-100 dark:bg-gray-800 overflow-y-auto p-8 flex justify-center items-start">
             <div className="bg-white shadow-lg origin-top scale-[0.6] sm:scale-[0.8] lg:scale-100 transition-transform">
               <VisualRenderer template={template} content={formData} />
             </div>
