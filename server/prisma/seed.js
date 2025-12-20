@@ -30,7 +30,10 @@ const templates = [
         { id: 'userType', label: 'User Type', type: 'text', placeholder: 'e.g. Student, Professional, Admin' },
         { id: 'name', label: 'Name', type: 'text', placeholder: 'Persona Name' },
         { id: 'bio', label: 'Bio', type: 'textarea', placeholder: 'Short biography' },
-        { id: 'demographics', label: 'Demographics', type: 'text', placeholder: 'Age, Occupation, Location' },
+        { id: 'age', label: 'Age', type: 'text', placeholder: 'e.g. 25' },
+        { id: 'gender', label: 'Gender', type: 'text', placeholder: 'e.g. Female' },
+        { id: 'occupation', label: 'Occupation', type: 'text', placeholder: 'e.g. Software Engineer' },
+        { id: 'location', label: 'Location', type: 'text', placeholder: 'e.g. San Francisco, CA' },
         { id: 'goals', label: 'Goals', type: 'textarea', placeholder: 'What do they want to achieve?' },
         { id: 'painPoints', label: 'Pain Points', type: 'textarea', placeholder: 'What frustrates them?' },
       ]
