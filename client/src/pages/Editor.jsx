@@ -9,6 +9,7 @@ import UserJourneyMap from '../components/editors/UserJourneyMap';
 import PaperPrototypeCanvas from '../components/editors/PaperPrototypeCanvas';
 import StoryboardEditor from '../components/editors/StoryboardEditor';
 import FeedbackEditor from '../components/editors/FeedbackEditor';
+import BusinessModelCanvas from '../components/editors/BusinessModelCanvas';
 import ThemeToggle from '../components/ThemeToggle';
 import ConfirmDialog from '../components/ConfirmDialog';
 import NotFound from './NotFound';
@@ -37,7 +38,9 @@ const FULL_WIDTH_TEMPLATES = [
   'User Journey Map',
   'Paper Prototypes',
   'Storyboarding',
-  'Storyboard'
+  'Storyboard',
+  'Business Model Canvas',
+  'Service Blueprint'
 ];
 
 export default function Editor() {
@@ -316,6 +319,11 @@ export default function Editor() {
               />
            ) : template.title === 'Feedback Form' ? (
               <FeedbackEditor 
+                content={formData}
+                onUpdate={handleContentUpdate}
+              />
+           ) : template.title === 'Business Model Canvas' ? (
+              <BusinessModelCanvas
                 content={formData}
                 onUpdate={handleContentUpdate}
               />

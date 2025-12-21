@@ -724,6 +724,136 @@ const VisualRenderer = ({ template, content, innerRef }) => {
     );
   }
 
+  // --- Business Model Canvas Layout ---
+  if (template.title === 'Business Model Canvas') {
+      const field = (key) => ((data[key] || '') + '').split('\n').map((line, i) => <div key={i}>{line}</div>);
+      
+      const cellStyle = {
+          borderRight: '2px solid black',
+          padding: '12px',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          backgroundColor: 'white',
+          position: 'relative'
+      };
+      
+      const labelStyle = {
+          fontSize: '12px',
+          fontWeight: 'bold',
+          textTransform: 'uppercase',
+          marginBottom: '8px',
+          color: 'black',
+          position: 'relative',
+          zIndex: 10
+      };
+      
+      const contentStyle = {
+          fontSize: '14px',
+          flexGrow: 1,
+          whiteSpace: 'pre-wrap',
+          wordWrap: 'break-word', // Fix overflow
+          position: 'relative',
+          zIndex: 10
+      };
+
+      const subSectionStyle = {
+          marginTop: '16px',
+          paddingTop: '8px',
+          borderTop: '1px dashed #ccc',
+          flexGrow: 1, 
+          display: 'flex', 
+          flexDirection: 'column',
+          position: 'relative',
+          zIndex: 10
+      };
+
+      // Watermark style removed for export as requested
+
+      return (
+        <div ref={innerRef} style={{ ...baseStyle, width: '2400px', padding: '32px', height: 'auto', minHeight: '900px', display: 'flex', flexDirection: 'column' }}>
+          <h1 style={{ ...h1Style, marginBottom: '24px' }}>{template.title}</h1>
+          
+          <div style={{ border: '2px solid black', display: 'flex', flexDirection: 'column', minHeight: '1200px', backgroundColor: 'white' }}>
+              {/* Top Section (Flexible height, min 67% approx visually) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', flexGrow: 2, borderBottom: '2px solid black' }}>
+                  {/* 1. Problem */}
+                  <div style={cellStyle}>
+                      <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                        <div style={labelStyle}>Problem</div>
+                        <div style={contentStyle}>{field('problem')}</div>
+                      </div>
+                      <div style={subSectionStyle}>
+                         <div style={labelStyle}>Existing Alternatives</div>
+                         <div style={contentStyle}>{field('existing-alternatives')}</div>
+                      </div>
+                  </div>
+
+                  {/* 2. Solution & Metrics */}
+                  <div style={{ display: 'flex', flexDirection: 'column', borderRight: '2px solid black' }}>
+                      <div style={{ ...cellStyle, borderRight: 'none', flex: 1 }}>
+                          <div style={labelStyle}>Solution</div>
+                          <div style={contentStyle}>{field('solution')}</div>
+                      </div>
+                      <div style={{ ...cellStyle, borderRight: 'none', flex: 1, borderTop: '2px solid black' }}>
+                          <div style={labelStyle}>Key Metrics</div>
+                          <div style={contentStyle}>{field('key-metrics')}</div>
+                      </div>
+                  </div>
+
+                  {/* 3. UVP */}
+                  <div style={cellStyle}>
+                      <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                        <div style={labelStyle}>Unique Value Proposition</div>
+                        <div style={contentStyle}>{field('uvp')}</div>
+                      </div>
+                       <div style={subSectionStyle}>
+                         <div style={labelStyle}>High-Level Concept</div>
+                         <div style={contentStyle}>{field('high-level-concept')}</div>
+                      </div>
+                  </div>
+
+                  {/* 4. Unfair Advantage & Channels */}
+                  <div style={{ display: 'flex', flexDirection: 'column', borderRight: '2px solid black' }}>
+                      <div style={{ ...cellStyle, borderRight: 'none', flex: 1 }}>
+                          <div style={labelStyle}>Unfair Advantage</div>
+                          <div style={contentStyle}>{field('unfair-advantage')}</div>
+                      </div>
+                      <div style={{ ...cellStyle, borderRight: 'none', flex: 1, borderTop: '2px solid black' }}>
+                          <div style={labelStyle}>Channels</div>
+                          <div style={contentStyle}>{field('channels')}</div>
+                      </div>
+                  </div>
+
+                  {/* 5. Customer Segments */}
+                  <div style={{ ...cellStyle, borderRight: 'none' }}>
+                      <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                        <div style={labelStyle}>Customer Segments</div>
+                        <div style={contentStyle}>{field('customer-segments')}</div>
+                      </div>
+                       <div style={subSectionStyle}>
+                         <div style={labelStyle}>Early Adopters</div>
+                         <div style={contentStyle}>{field('early-adopters')}</div>
+                      </div>
+                  </div>
+              </div>
+
+              {/* Bottom Section (Flexible height, min 33% approx visually) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flexGrow: 1 }}>
+                  <div style={{ ...cellStyle, borderRight: '2px solid black' }}>
+                      <div style={labelStyle}>Cost Structure</div>
+                      <div style={contentStyle}>{field('cost-structure')}</div>
+                  </div>
+                  <div style={{ ...cellStyle, borderRight: 'none' }}>
+                      <div style={labelStyle}>Revenue Streams</div>
+                      <div style={contentStyle}>{field('revenue-streams')}</div>
+                  </div>
+              </div>
+          </div>
+        </div>
+      );
+  }
+
   // --- Default List Layout ---
   const sections = template.content && typeof template.content === 'string'
     ? JSON.parse(template.content).sections
@@ -748,6 +878,7 @@ const VisualRenderer = ({ template, content, innerRef }) => {
       </div>
     </div>
   );
+
 };
 
 export default VisualRenderer;
