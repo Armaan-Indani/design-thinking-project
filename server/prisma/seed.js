@@ -208,6 +208,59 @@ const templates = [
         { id: 'findings', label: 'Findings', type: 'textarea', placeholder: 'Validated or Invalidated?' },
       ]
     }
+  },
+  {
+    id: 'mind-mapping',
+    title: 'Mind Mapping',
+    description: 'Visually organize information, starting from a central theme.',
+    phase: 'Other',
+    content: {
+      sections: [
+        { id: 'central-theme', label: 'Central Theme', type: 'text', placeholder: 'Main idea...' },
+        { id: 'branch-1', label: 'Key Branch 1', type: 'textarea', placeholder: 'Sub-topic...' },
+        { id: 'branch-2', label: 'Key Branch 2', type: 'textarea', placeholder: 'Sub-topic...' },
+        { id: 'branch-3', label: 'Key Branch 3', type: 'textarea', placeholder: 'Sub-topic...' },
+        { id: 'connections', label: 'Connections & Insights', type: 'textarea', placeholder: 'Notes on relationships...' }
+      ]
+    }
+  },
+  {
+    id: 'business-model-canvas',
+    title: 'Business Model Canvas',
+    description: 'Lean Canvas adaptation for quick business modeling.',
+    phase: 'Other',
+    content: {
+      sections: [
+        { id: 'problem', label: 'Problem', type: 'textarea', placeholder: 'Top 3 problems...' },
+        { id: 'existing-alternatives', label: 'Existing Alternatives', type: 'textarea', placeholder: 'How are these solved today?' },
+        { id: 'solution', label: 'Solution', type: 'textarea', placeholder: 'Top 3 features...' },
+        { id: 'key-metrics', label: 'Key Metrics', type: 'textarea', placeholder: 'Key activities you measure...' },
+        { id: 'uvp', label: 'Unique Value Proposition', type: 'textarea', placeholder: 'Single, clear, compelling message...' },
+        { id: 'high-level-concept', label: 'High-Level Concept', type: 'text', placeholder: 'X for Y analogy...' },
+        { id: 'unfair-advantage', label: 'Unfair Advantage', type: 'textarea', placeholder: 'Can\'t be easily copied or bought...' },
+        { id: 'channels', label: 'Channels', type: 'textarea', placeholder: 'Path to customers...' },
+        { id: 'customer-segments', label: 'Customer Segments', type: 'textarea', placeholder: 'Target customers...' },
+        { id: 'early-adopters', label: 'Early Adopters', type: 'textarea', placeholder: 'Characteristics of ideal early customer...' },
+        { id: 'cost-structure', label: 'Cost Structure', type: 'textarea', placeholder: 'Fixed and variable costs...' },
+        { id: 'revenue-streams', label: 'Revenue Streams', type: 'textarea', placeholder: 'Revenue model, life time value, etc...' }
+      ]
+    }
+  },
+  {
+    id: 'service-blueprint',
+    title: 'Service Blueprint',
+    description: 'Visualize organizational processes in order to optimize how a service is delivered.',
+    phase: 'Other',
+    content: {
+      sections: [
+        { id: 'physical-evidence', label: 'Physical Evidence / Touch Points', type: 'textarea', placeholder: 'Website, Store, Receipts, Emails...' },
+        { id: 'customer-actions', label: 'Customer Actions', type: 'textarea', placeholder: 'Steps the customer takes...' },
+        { id: 'customer-emotions', label: 'Customer Emotions', type: 'textarea', placeholder: 'How they feel at each step...' },
+        { id: 'frontstage', label: 'Frontstage Actions (Visible)', type: 'textarea', placeholder: 'Employee actions visible to customer...' },
+        { id: 'backstage', label: 'Backstage Actions (Invisible)', type: 'textarea', placeholder: 'Employee actions not visible...' },
+        { id: 'support-processes', label: 'Support Processes', type: 'textarea', placeholder: 'Internal steps to support the service...' }
+      ]
+    }
   }
 ];
 

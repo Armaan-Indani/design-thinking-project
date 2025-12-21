@@ -26,7 +26,10 @@ const NO_PREVIEW_TEMPLATES = [
   'Idea Categorization',
   'SCAMPER',
   'Usability Testing Checklist',
-  'User Interviews (Validation)'
+  'User Interviews (Validation)',
+  'Mind Mapping',
+  'Business Model Canvas',
+  'Service Blueprint'
 ];
 
 const FULL_WIDTH_TEMPLATES = [
