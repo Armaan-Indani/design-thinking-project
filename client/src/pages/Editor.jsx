@@ -11,6 +11,7 @@ import StoryboardEditor from '../components/editors/StoryboardEditor';
 import FeedbackEditor from '../components/editors/FeedbackEditor';
 import BusinessModelCanvas from '../components/editors/BusinessModelCanvas';
 import ServiceBlueprintEditor from '../components/editors/ServiceBlueprintEditor';
+import MindMapEditor from '../components/editors/MindMapEditor';
 import ThemeToggle from '../components/ThemeToggle';
 import ConfirmDialog from '../components/ConfirmDialog';
 import AutoBulletTextArea from '../components/AutoBulletTextArea';
@@ -42,7 +43,8 @@ const FULL_WIDTH_TEMPLATES = [
   'Storyboarding',
   'Storyboard',
   'Business Model Canvas',
-  'Service Blueprint'
+  'Service Blueprint',
+  'Mind Mapping'
 ];
 
 const AUTO_BULLET_TEMPLATES = [
@@ -286,13 +288,13 @@ export default function Editor() {
       <main className="flex-1 flex overflow-hidden relative">
         {/* Left Side: Form Editor */}
         <div 
-            className={`overflow-y-auto p-8 transition-all duration-75 bg-white dark:bg-gray-900 ${
+            className={`overflow-y-auto transition-all duration-75 bg-white dark:bg-gray-900 ${
               showPreview && !NO_PREVIEW_TEMPLATES.includes(template.title) 
                 ? 'border-r dark:border-gray-700' 
                 : FULL_WIDTH_TEMPLATES.includes(template.title)
                   ? 'w-full'
                   : 'w-[80%] mx-auto'
-            }`}
+            } ${template.title === 'Mind Mapping' ? 'p-0 overflow-hidden' : 'p-8'}`}
             style={{ 
               width: showPreview && !NO_PREVIEW_TEMPLATES.includes(template.title) 
                 ? `${editorWidth}%` 
@@ -301,9 +303,11 @@ export default function Editor() {
                   : '80%' 
             }}
         >
-           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-8 text-blue-800 dark:text-blue-200 text-sm whitespace-pre-wrap">
-             <strong>Guidance:</strong> {template.description}
-           </div>
+           {template.title !== 'Mind Mapping' && (
+             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-8 text-blue-800 dark:text-blue-200 text-sm whitespace-pre-wrap">
+               <strong>Guidance:</strong> {template.description}
+             </div>
+           )}
 
            {template.title === 'Idea Categorization' ? (
               <IdeaCategorization 
@@ -337,6 +341,11 @@ export default function Editor() {
               />
            ) : template.title === 'Service Blueprint' ? (
               <ServiceBlueprintEditor 
+                content={formData}
+                onUpdate={handleContentUpdate}
+              />
+           ) : template.title === 'Mind Mapping' ? (
+              <MindMapEditor
                 content={formData}
                 onUpdate={handleContentUpdate}
               />

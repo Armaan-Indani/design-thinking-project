@@ -943,6 +943,172 @@ const VisualRenderer = ({ template, content, innerRef }) => {
     );
   }
 
+  // --- Mind Mapping Layout ---
+  if (template.title === 'Mind Mapping') {
+    const nodes = data.nodes || [];
+    const edges = data.edges || [];
+
+    // Calculate bounding box
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    if (nodes.length === 0) {
+        minX = 0; minY = 0; maxX = 800; maxY = 600;
+    } else {
+        nodes.forEach(n => {
+            if (n.position.x < minX) minX = n.position.x;
+            if (n.position.y < minY) minY = n.position.y;
+            // Est width/height if not present
+            const w = n.style?.width ? parseInt(n.style.width) : (n.type === 'imageNode' ? 200 : 150);
+            const h = n.style?.height ? parseInt(n.style.height) : (n.type === 'imageNode' ? 150 : 50);
+            if (n.position.x + w > maxX) maxX = n.position.x + w;
+            if (n.position.y + h > maxY) maxY = n.position.y + h;
+        });
+    }
+
+    const padding = 50;
+    const width = Math.max(800, maxX - minX + padding * 2);
+    const height = Math.max(600, maxY - minY + padding * 2);
+
+    const getNormPos = (pos) => ({
+        x: pos.x - minX + padding,
+        y: pos.y - minY + padding + 80 // Shift down 80px to avoid title overlap
+    });
+
+    return (
+        <div ref={innerRef} style={{ ...baseStyle, width: `${width}px`, height: `${height}px`, padding: '0', position: 'relative', overflow: 'hidden', backgroundColor: '#f8fafc' }}>
+            <h1 style={{ ...h1Style, position: 'absolute', top: '20px', left: '20px', zIndex: 50, backgroundColor: 'rgba(255,255,255,0.8)', padding: '10px' }}>{template.title}</h1>
+            
+            {/* Edges Layer */}
+            <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}>
+                {edges.map(edge => {
+                    const source = nodes.find(n => n.id === edge.source);
+                    const target = nodes.find(n => n.id === edge.target);
+                    if (!source || !target) return null;
+                    
+                    const sPos = getNormPos(source.position);
+                    const tPos = getNormPos(target.position);
+                    
+                    // Simple estimation of center
+                    const sW = source.style?.width ? parseInt(source.style.width) : (source.type === 'imageNode' ? 200 : 100); 
+                    const sH = source.style?.height ? parseInt(source.style.height) : (source.type === 'imageNode' ? 150 : 40);
+                    const tW = target.style?.width ? parseInt(target.style.width) : (target.type === 'imageNode' ? 200 : 100);
+                    const tH = target.style?.height ? parseInt(target.style.height) : (target.type === 'imageNode' ? 150 : 40);
+
+                    const x1 = sPos.x + sW/2;
+                    const y1 = sPos.y + sH/2;
+                    const x2 = tPos.x + tW/2;
+                    const y2 = tPos.y + tH/2;
+                    
+                    // Draw Edge Label (Midpoint)
+                    const midX = (x1 + x2) / 2;
+                    const midY = (y1 + y2) / 2;
+
+                    return (
+                        <g key={edge.id}>
+                            <path 
+                               d={`M${x1},${y1} Q${(x1+x2)/2},${y1} ${x2},${y2}`} 
+                               stroke={edge.style?.stroke || "#cbd5e1"} 
+                               strokeWidth="2" 
+                               fill="none" 
+                            />
+                        </g>
+                    );
+                })}
+            </svg>
+            
+            {/* Edge Labels (HTML for easier text handling) */}
+            {edges.map(edge => {
+                 if (!edge.label) return null;
+                 const source = nodes.find(n => n.id === edge.source);
+                 const target = nodes.find(n => n.id === edge.target);
+                 if (!source || !target) return null;
+
+                 const sPos = getNormPos(source.position);
+                 const tPos = getNormPos(target.position);
+                 const sW = source.style?.width ? parseInt(source.style.width) : (source.type === 'imageNode' ? 200 : 100); 
+                 const sH = source.style?.height ? parseInt(source.style.height) : (source.type === 'imageNode' ? 150 : 40);
+                 const tW = target.style?.width ? parseInt(target.style.width) : (target.type === 'imageNode' ? 200 : 100);
+                 const tH = target.style?.height ? parseInt(target.style.height) : (target.type === 'imageNode' ? 150 : 40);
+
+                 const x1 = sPos.x + sW/2;
+                 const y1 = sPos.y + sH/2;
+                 const x2 = tPos.x + tW/2;
+                 const y2 = tPos.y + tH/2;
+                 const midX = (x1 + x2) / 2;
+                 const midY = (y1 + y2) / 2;
+
+                 return (
+                     <div key={`lbl-${edge.id}`} style={{
+                         position: 'absolute',
+                         left: midX,
+                         top: midY,
+                         transform: 'translate(-50%, -50%)',
+                         backgroundColor: 'white',
+                         padding: '2px 6px',
+                         borderRadius: '4px',
+                         fontSize: '12px',
+                         border: `1px solid ${edge.style?.stroke || '#cbd5e1'}`,
+                         color: '#475569',
+                         zIndex: 5
+                     }}>
+                         {edge.label}
+                     </div>
+                 );
+            })}
+
+            {nodes.map(node => {
+                const pos = getNormPos(node.position);
+                if (node.type === 'imageNode') {
+                     // Robust width reading: check style.width (string px) -> default
+                     const w = node.style?.width ? node.style.width : '200px';
+                     const h = node.style?.height ? node.style.height : '150px';
+
+                     return (
+                        <div key={node.id} style={{
+                            position: 'absolute',
+                            left: pos.x,
+                            top: pos.y,
+                            width: String(w).endsWith('px') ? w : `${w}px`,
+                            height: String(h).endsWith('px') ? h : `${h}px`,
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '8px',
+                            overflow: 'hidden',
+                            backgroundColor: 'white',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                            zIndex: 10
+                        }}>
+                             <img src={node.data.src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                     );
+                }
+                // Text Node
+                return (
+                    <div key={node.id} style={{
+                        position: 'absolute',
+                        left: pos.x,
+                        top: pos.y,
+                        padding: '8px 16px',
+                        borderRadius: '9999px',
+                        border: `2px solid ${node.data.color || '#e5e7eb'}`,
+                        backgroundColor: node.data.bgColor || 'white',
+                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        minWidth: '100px',
+                        textAlign: 'center',
+                        fontSize: node.data.fontSize || '14px',
+                        fontWeight: node.data.isBold ? 'bold' : 'normal',
+                        color: '#1f2937',
+                        zIndex: 10
+                    }}>
+                        {node.data.label}
+                    </div>
+                );
+            })}
+             <div style={{ position: 'absolute', bottom: '20px', width: '100%', textAlign: 'center', fontSize: '14px', color: colors.gray400 }}>
+                Generated by Design Thinking Platform
+            </div>
+        </div>
+    );
+  }
+
   // --- Default List Layout ---
   const sections = template.content && typeof template.content === 'string'
     ? JSON.parse(template.content).sections
