@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
+import AutoBulletTextArea from '../AutoBulletTextArea';
 
 export default function FeedbackEditor({ content, onUpdate }) {
   // Initialize state from content or default
@@ -81,11 +82,11 @@ export default function FeedbackEditor({ content, onUpdate }) {
                 className="w-full text-base font-medium p-2 border-b-2 border-transparent focus:border-blue-500 bg-transparent outline-none dark:text-white placeholder-gray-400"
               />
               
-              <textarea
+              <AutoBulletTextArea
                 value={item.answer}
                 onChange={(e) => updateItem(item.id, 'answer', e.target.value)}
                 placeholder="Record user answer here..."
-                className="w-full h-24 p-3 bg-gray-50 dark:bg-gray-900 border dark:border-gray-700 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm dark:text-gray-300 placeholder-gray-400"
+                className="w-full min-h-[96px]"
               />
             </div>
           </div>

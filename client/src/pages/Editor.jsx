@@ -12,6 +12,7 @@ import FeedbackEditor from '../components/editors/FeedbackEditor';
 import BusinessModelCanvas from '../components/editors/BusinessModelCanvas';
 import ThemeToggle from '../components/ThemeToggle';
 import ConfirmDialog from '../components/ConfirmDialog';
+import AutoBulletTextArea from '../components/AutoBulletTextArea';
 import NotFound from './NotFound';
 
 const NO_PREVIEW_TEMPLATES = [
@@ -41,6 +42,12 @@ const FULL_WIDTH_TEMPLATES = [
   'Storyboard',
   'Business Model Canvas',
   'Service Blueprint'
+];
+
+const AUTO_BULLET_TEMPLATES = [
+  'User Interviews',
+  'Questionnaire',
+  'User Interviews (Validation)'
 ];
 
 export default function Editor() {
@@ -335,12 +342,21 @@ export default function Editor() {
                    {section.label}
                  </label>
                  {section.type === 'textarea' ? (
-                   <textarea
-                     value={formData[section.id] || ''}
-                     onChange={(e) => handleInputChange(section.id, e.target.value)}
-                     placeholder={section.placeholder}
-                     className="w-full h-32 p-3 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                   />
+                   AUTO_BULLET_TEMPLATES.includes(template.title) ? (
+                      <AutoBulletTextArea
+                        value={formData[section.id] || ''}
+                        onChange={(e) => handleInputChange(section.id, e.target.value)}
+                        placeholder={section.placeholder}
+                        className="w-full min-h-[128px]" // Cleaned up classes, min-h matches h-32
+                      />
+                   ) : (
+                      <textarea
+                        value={formData[section.id] || ''}
+                        onChange={(e) => handleInputChange(section.id, e.target.value)}
+                        placeholder={section.placeholder}
+                        className="w-full h-32 p-3 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+                      />
+                   )
                  ) : (
                    <input
                      type="text"
