@@ -506,14 +506,6 @@ const VisualRenderer = ({ template, content, innerRef }) => {
               const start = getNodeCenter(sourceNode);
               const end = getNodeCenter(targetNode);
 
-              const midX = (start.x + end.x) / 2;
-              const midY = (start.y + end.y) / 2;
-              const label = edge.data?.label || '';
-
-              // Calculate slight offset for arrowhead so it doesn't overlap exactly if we wanted, 
-              // but exact point is fine for now if z-index is right. 
-              // Since transparent nodes, might need to stop short. For now, Draw exactly to center.
-
               return (
                 <g key={edge.id}>
                   {/* Edge Line */}
@@ -529,37 +521,45 @@ const VisualRenderer = ({ template, content, innerRef }) => {
                     points={getArrowHead(start.x, start.y, end.x, end.y)}
                     fill={colors.gray400}
                   />
-
-                  {/* Label (if exists) */}
-                  {label && (
-                    <g>
-                      <rect
-                        x={midX - (label.length * 4)}
-                        y={midY - 10}
-                        width={label.length * 8}
-                        height="20"
-                        fill="white"
-                        opacity="0.9"
-                        rx="4"
-                      />
-                      <text
-                        x={midX}
-                        y={midY}
-                        textAnchor="middle"
-                        alignmentBaseline="middle"
-                        dominantBaseline="middle"
-                        fill={colors.gray800}
-                        fontSize="12"
-                        fontWeight="500"
-                      >
-                        {label}
-                      </text>
-                    </g>
-                  )}
                 </g>
               );
             })}
           </svg>
+
+          {/* Edge HTML Labels Layer - Overlays on top of Lines but below nodes */}
+          {edges.map(edge => {
+            const sourceNode = nodeMap.get(edge.source);
+            const targetNode = nodeMap.get(edge.target);
+            const label = edge.data?.label;
+            
+            if (!sourceNode || !targetNode || !label) return null;
+
+            const start = getNodeCenter(sourceNode);
+            const end = getNodeCenter(targetNode);
+            const midX = (start.x + end.x) / 2;
+            const midY = (start.y + end.y) / 2;
+
+            return (
+              <div key={`label-${edge.id}`} style={{
+                position: 'absolute',
+                left: midX,
+                top: midY,
+                transform: 'translate(-50%, -50%)',
+                backgroundColor: colors.white,
+                padding: '4px 8px',
+                borderRadius: '4px',
+                border: `1px solid ${colors.gray300}`,
+                color: colors.gray800,
+                fontSize: '12px',
+                fontWeight: '500',
+                whiteSpace: 'nowrap',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                zIndex: 5
+              }}>
+                {label}
+              </div>
+            );
+          })}
 
           {/* Nodes Layer */}
           {nodes.map(node => {
@@ -597,7 +597,8 @@ const VisualRenderer = ({ template, content, innerRef }) => {
                       <span style={{ padding: '2px 4px', border: `1px solid ${colors.gray200}`, borderRadius: '4px' }}>{node.data.status || 'Draft'}</span>
                       {node.data.flowStep && <span style={{ padding: '2px 4px', border: `1px solid ${colors.gray200}`, borderRadius: '4px' }}>Step {node.data.flowStep}</span>}
                     </div>
-                    <p style={{ fontSize: '12px', color: colors.gray600 }}>{node.data.description}</p>
+                    {/* Fixed: Multiline description */}
+                    <p style={{ fontSize: '12px', color: colors.gray600, whiteSpace: 'pre-wrap' }}>{node.data.description}</p>
                   </div>
                 </div>
               );
@@ -605,6 +606,7 @@ const VisualRenderer = ({ template, content, innerRef }) => {
             if (node.type === 'note') {
               // Respect Resizing with robust check
               const checkWidth = node.style?.width ?? node.measured?.width ?? node.width;
+              // Use height as minimum, allow expansion
               const checkHeight = node.style?.height ?? node.measured?.height ?? node.height;
 
               const w = checkWidth ? parseInt(checkWidth) : 200;
@@ -616,8 +618,8 @@ const VisualRenderer = ({ template, content, innerRef }) => {
                   left: pos.x,
                   top: pos.y,
                   width: `${w}px`, // Explicitly add px
-                  height: `${h}px`,
-                  minHeight: '100px',
+                  minHeight: `${h}px`, // Ensure it starts at least this tall
+                  height: 'auto', // Auto grow
                   padding: '16px',
                   borderRadius: '8px',
                   border: '1px solid #fef08a', // yellow-200
@@ -627,7 +629,7 @@ const VisualRenderer = ({ template, content, innerRef }) => {
                   boxSizing: 'border-box'
                 }}>
                   <div style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 'bold', color: '#ca8a04', marginBottom: '8px' }}>Note</div>
-                  <p style={{ fontSize: '14px', color: '#1f2937', whiteSpace: 'pre-wrap' }}>{node.data.label}</p>
+                  <p style={{ fontSize: '14px', color: '#1f2937', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{node.data.label}</p>
                 </div>
               );
             }

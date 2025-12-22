@@ -91,7 +91,8 @@ const CustomEdge = ({
                 value={data?.label || ''}
                 onChange={updateLabel}
                 placeholder="Label..."
-                className="bg-white border rounded px-2 py-0.5 text-xs shadow-sm focus:ring-1 focus:ring-blue-500 outline-none w-24 text-center opacity-80 hover:opacity-100 focus:opacity-100 transition-opacity"
+                style={{ width: `${Math.max(6, (data?.label || '').length + 2)}ch` }}
+                className="bg-white text-gray-900 border rounded px-2 py-0.5 text-xs shadow-sm focus:ring-1 focus:ring-blue-500 outline-none text-center opacity-80 hover:opacity-100 focus:opacity-100 transition-opacity"
              />
           </div>
         </div>
@@ -114,6 +115,15 @@ const PrototypeNode = ({ data, id, selected }) => {
       reader.readAsDataURL(file);
     }
   };
+
+  const textareaRef = React.useRef(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [data.description]);
 
   return (
     <div className={`shadow-lg rounded-lg bg-white dark:bg-gray-800 border-2 w-72 transition-all ${selected ? 'border-blue-500 ring-4 ring-blue-100 dark:ring-blue-900' : 'border-gray-200 dark:border-gray-700'}`}>
@@ -196,27 +206,30 @@ const PrototypeNode = ({ data, id, selected }) => {
         </select>
         
         <textarea 
+          ref={textareaRef}
           value={data.description}
           onChange={(e) => data.onUpdate(id, { description: e.target.value })}
           placeholder="Description..."
-          className="w-full text-xs border rounded p-2 resize-none h-16 bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+          className="w-full text-xs border rounded p-2 resize-none min-h-[4rem] overflow-hidden bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
         />
       </div>
     </div>
   );
 };
 
-// 2. Note Node (Resizable Text)
+// 2. Note Node (Auto-Resizable Text)
 const NoteNode = ({ data, id, selected }) => {
+    const textareaRef = React.useRef(null);
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    }, [data.label]);
+
     return (
-        <div className={`h-full w-full p-4 rounded-lg bg-yellow-100 border shadow-sm flex flex-col ${selected ? 'border-yellow-400 ring-2 ring-yellow-200' : 'border-yellow-200'}`}>
-             <NodeResizer 
-                isVisible={selected} 
-                minWidth={100} 
-                minHeight={100} 
-                lineClassName="border-yellow-400" 
-                handleClassName="h-3 w-3 bg-yellow-500 border border-white rounded"
-             />
+        <div className={`h-auto w-[200px] p-4 rounded-lg bg-yellow-100 border shadow-sm flex flex-col ${selected ? 'border-yellow-400 ring-2 ring-yellow-200' : 'border-yellow-200'}`}>
              
              {/* Handles */}
              <Handle type="target" position={Position.Top} id="t" className="w-2 h-2 !bg-yellow-500 !opacity-50" />
@@ -231,9 +244,10 @@ const NoteNode = ({ data, id, selected }) => {
                  </button>
              </div>
              <textarea 
+                ref={textareaRef}
                 value={data.label}
                 onChange={(e) => data.onUpdate(id, { label: e.target.value })}
-                className="w-full flex-grow bg-transparent border-none resize-none text-sm text-gray-800 p-0 focus:ring-0"
+                className="w-full bg-transparent border-none resize-none text-sm text-gray-800 p-0 focus:ring-0 overflow-hidden min-h-[50px]"
                 placeholder="Add annotation..."
              />
         </div>
@@ -332,7 +346,10 @@ export default function PaperPrototypeCanvas({ content, onUpdate }) {
         id,
         type: 'note',
         position: pos,
-        style: { width: 200, height: 150 },
+        // Removed fixed style logic which might interfere with auto-layout or might be needed for ReactFlow.
+        // Actually for correct auto-size behavior in React Flow < 11 / XYFlow, avoiding style.height is good.
+        // We set a fixed Width in the component or style.
+        style: { width: 200 }, 
         data: { 
             label: '',
             onUpdate: updateNodeData,
