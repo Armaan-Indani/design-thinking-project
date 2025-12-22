@@ -947,6 +947,7 @@ const VisualRenderer = ({ template, content, innerRef }) => {
   if (template.title === 'Mind Mapping') {
     const nodes = data.nodes || [];
     const edges = data.edges || [];
+    console.log('Rendering Mind Map Export. Nodes:', JSON.stringify(nodes.map(n => ({ id: n.id, type: n.type, style: n.style, measured: n.measured, width: n.width })), null, 2));
 
     // Calculate bounding box
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -957,8 +958,10 @@ const VisualRenderer = ({ template, content, innerRef }) => {
             if (n.position.x < minX) minX = n.position.x;
             if (n.position.y < minY) minY = n.position.y;
             // Est width/height if not present
-            const w = n.style?.width ? parseInt(n.style.width) : (n.type === 'imageNode' ? 200 : 150);
-            const h = n.style?.height ? parseInt(n.style.height) : (n.type === 'imageNode' ? 150 : 50);
+            const wVal = n.style?.width ?? n.measured?.width ?? n.width ?? (n.type === 'imageNode' ? 200 : 150);
+            const hVal = n.style?.height ?? n.measured?.height ?? n.height ?? (n.type === 'imageNode' ? 150 : 50);
+            const w = parseFloat(wVal);
+            const h = parseFloat(hVal);
             if (n.position.x + w > maxX) maxX = n.position.x + w;
             if (n.position.y + h > maxY) maxY = n.position.y + h;
         });
@@ -988,16 +991,16 @@ const VisualRenderer = ({ template, content, innerRef }) => {
                     const sPos = getNormPos(source.position);
                     const tPos = getNormPos(target.position);
                     
-                    // Robust dimension reading
-                    const sWVal = source.style?.width ?? source.width ?? (source.type === 'imageNode' ? 200 : 100);
-                    const sHVal = source.style?.height ?? source.height ?? (source.type === 'imageNode' ? 150 : 40);
-                    const sW = typeof sWVal === 'string' ? parseInt(sWVal) : sWVal;
-                    const sH = typeof sHVal === 'string' ? parseInt(sHVal) : sHVal;
+                    // Robust dimension reading: Prioritize measured/explicit width over style which might be stale defaults
+                    const sWVal = source.measured?.width ?? source.width ?? source.style?.width ?? (source.type === 'imageNode' ? 200 : 100);
+                    const sHVal = source.measured?.height ?? source.height ?? source.style?.height ?? (source.type === 'imageNode' ? 150 : 40);
+                    const sW = parseFloat(sWVal);
+                    const sH = parseFloat(sHVal);
 
-                    const tWVal = target.style?.width ?? target.width ?? (target.type === 'imageNode' ? 200 : 100);
-                    const tHVal = target.style?.height ?? target.height ?? (target.type === 'imageNode' ? 150 : 40);
-                    const tW = typeof tWVal === 'string' ? parseInt(tWVal) : tWVal;
-                    const tH = typeof tHVal === 'string' ? parseInt(tHVal) : tHVal;
+                    const tWVal = target.measured?.width ?? target.width ?? target.style?.width ?? (target.type === 'imageNode' ? 200 : 100);
+                    const tHVal = target.measured?.height ?? target.height ?? target.style?.height ?? (target.type === 'imageNode' ? 150 : 40);
+                    const tW = parseFloat(tWVal);
+                    const tH = parseFloat(tHVal);
 
                     // Calculate connection points: Source Right -> Target Left
                     const x1 = sPos.x + sW;
@@ -1035,15 +1038,15 @@ const VisualRenderer = ({ template, content, innerRef }) => {
                  const sPos = getNormPos(source.position);
                  const tPos = getNormPos(target.position);
                  
-                 const sWVal = source.style?.width ?? source.width ?? (source.type === 'imageNode' ? 200 : 100);
-                 const sHVal = source.style?.height ?? source.height ?? (source.type === 'imageNode' ? 150 : 40);
-                 const sW = typeof sWVal === 'string' ? parseInt(sWVal) : sWVal;
-                 const sH = typeof sHVal === 'string' ? parseInt(sHVal) : sHVal;
+                 const sWVal = source.measured?.width ?? source.width ?? source.style?.width ?? (source.type === 'imageNode' ? 200 : 100);
+                 const sHVal = source.measured?.height ?? source.height ?? source.style?.height ?? (source.type === 'imageNode' ? 150 : 40);
+                 const sW = parseFloat(sWVal);
+                 const sH = parseFloat(sHVal);
 
-                 const tWVal = target.style?.width ?? target.width ?? (target.type === 'imageNode' ? 200 : 100);
-                 const tHVal = target.style?.height ?? target.height ?? (target.type === 'imageNode' ? 150 : 40);
-                 const tW = typeof tWVal === 'string' ? parseInt(tWVal) : tWVal;
-                 const tH = typeof tHVal === 'string' ? parseInt(tHVal) : tHVal;
+                 const tWVal = target.measured?.width ?? target.width ?? target.style?.width ?? (target.type === 'imageNode' ? 200 : 100);
+                 const tHVal = target.measured?.height ?? target.height ?? target.style?.height ?? (target.type === 'imageNode' ? 150 : 40);
+                 const tW = parseFloat(tWVal);
+                 const tH = parseFloat(tHVal);
 
                  const x1 = sPos.x + sW;
                  const y1 = sPos.y + sH / 2;
@@ -1051,7 +1054,8 @@ const VisualRenderer = ({ template, content, innerRef }) => {
                  const y2 = tPos.y + tH / 2;
                  
                  // Beizer midpoint approximation (t=0.5)
-                 const midX = 0.125 * x1 + 0.375 * (x1 + Math.abs(x2 - x1) * 0.5) + 0.375 * (x2 - Math.abs(x2 - x1) * 0.5) + 0.125 * x2;
+                 const dist = Math.abs(x2 - x1) * 0.5;
+                 const midX = 0.125 * x1 + 0.375 * (x1 + dist) + 0.375 * (x2 - dist) + 0.125 * x2;
                  const midY = 0.125 * y1 + 0.375 * y1 + 0.375 * y2 + 0.125 * y2;
 
                  return (
@@ -1076,11 +1080,14 @@ const VisualRenderer = ({ template, content, innerRef }) => {
             {nodes.map(node => {
                 const pos = getNormPos(node.position);
                 if (node.type === 'imageNode') {
-                     const wVal = node.style?.width ?? node.width ?? 200;
-                     const hVal = node.style?.height ?? node.height ?? 150;
-                     const w = typeof wVal === 'number' ? `${wVal}px` : wVal;
-                     const h = typeof hVal === 'number' ? `${hVal}px` : hVal;
-
+                     const wVal = node.measured?.width ?? node.width ?? node.style?.width ?? 200;
+                     const hVal = node.measured?.height ?? node.height ?? node.style?.height ?? 150;
+                     
+                     // Ensure we have numbers or valid px strings
+                     const toPx = (v) => isNaN(v) ? v : `${v}px`;
+                     const w = toPx(wVal);
+                     const h = toPx(hVal);
+                     
                      return (
                         <div key={node.id} style={{
                             position: 'absolute',
