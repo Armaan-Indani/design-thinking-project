@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, ArrowRight } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 const COLORS = {
   emotions: 'bg-orange-100 border-orange-300 text-gray-900',
@@ -17,15 +17,6 @@ const HEADER_COLORS = {
   frontstage: 'bg-teal-500 text-white',
   backstage: 'bg-blue-700 text-white',
   support: 'bg-purple-800 text-white',
-};
-
-const ICONS = {
-  emotions: '😊',
-  actions: '📢',
-  touchpoints: '👆',
-  frontstage: '⭐',
-  backstage: '👥',
-  support: '🔧' // Placeholder
 };
 
 const ROWS = [
@@ -105,13 +96,9 @@ export default function ServiceBlueprintEditor({ content, onUpdate }) {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 overflow-hidden">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-white dark:bg-gray-800">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Service Blueprint</h2>
-        {/* Global actions could go here? */}
-      </div>
-
-      <div className="flex-1 overflow-auto p-8">
-        <div className="min-w-max w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600">
+      
+      <div className="flex-1 overflow-auto">
+        <div className="min-w-max w-full bg-white dark:bg-gray-800">
           
           {ROWS.map((row) => (
             <React.Fragment key={row.id}>
@@ -136,7 +123,6 @@ export default function ServiceBlueprintEditor({ content, onUpdate }) {
               <div className="flex w-full items-stretch border-b border-gray-200 dark:border-gray-700 last:border-0 relative">
                 {/* Header Column */}
                 <div className={`w-48 flex-shrink-0 p-4 flex flex-col items-center justify-center border-r border-gray-200 dark:border-gray-700 ${HEADER_COLORS[row.color]} relative group/header`}>
-                  <div className="text-3xl mb-2">{ICONS[row.id]}</div>
                   <div className="font-bold text-center leading-tight">{row.label}</div>
                   
                   {/* Add Button in Header - REMOVED */}
@@ -150,13 +136,6 @@ export default function ServiceBlueprintEditor({ content, onUpdate }) {
 
                     {rowItems[row.id]?.map((item, index) => (
                         <div key={item.id} className="relative group mx-4 first:ml-0 last:mr-0 min-w-[180px] max-w-[400px] flex-shrink-0">
-                            {/* Arrow between items */}
-                            {index < rowItems[row.id].length - 1 && row.id !== 'emotions' && (
-                                <div className="absolute -right-8 top-1/2 transform -translate-y-1/2 z-10 text-gray-400">
-                                    <ArrowRight className="w-6 h-6" />
-                                </div>
-                            )}
-
                             <div className={`relative grid ${row.id === 'backstage' || row.id === 'support' ? 'min-h-[8rem]' : 'min-h-[6rem]'}`}>
                                 {/* Hidden div for size measurement */}
                                 <div className={`col-start-1 row-start-1 p-3 text-sm whitespace-pre-wrap break-words border border-transparent opacity-0 pointer-events-none ${row.id === 'backstage' || row.id === 'support' ? 'min-h-[8rem]' : 'min-h-[6rem]'}`}>

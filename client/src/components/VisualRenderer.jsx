@@ -920,12 +920,6 @@ const VisualRenderer = ({ template, content, innerRef }) => {
                               }}>
                                  {item.text}
                               </div>
-                              {/* Arrow */}
-                              {idx < arr.length - 1 && row.id !== 'emotions' && (
-                                 <div style={{ position: 'absolute', right: '-24px', top: '50%', transform: 'translateY(-50%)', zIndex: 10, color: '#9ca3af', fontSize: '20px' }}>
-                                    →
-                                 </div>
-                              )}
                            </div>
                         ))}
                         {(rowItems[row.id] || []).length === 0 && (

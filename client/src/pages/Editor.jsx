@@ -288,13 +288,13 @@ export default function Editor() {
       <main className="flex-1 flex overflow-hidden relative">
         {/* Left Side: Form Editor */}
         <div 
-            className={`overflow-y-auto transition-all duration-75 bg-white dark:bg-gray-900 ${
+            className={`transition-all duration-75 bg-white dark:bg-gray-900 ${
               showPreview && !NO_PREVIEW_TEMPLATES.includes(template.title) 
                 ? 'border-r dark:border-gray-700' 
                 : FULL_WIDTH_TEMPLATES.includes(template.title)
                   ? 'w-full'
                   : 'w-[80%] mx-auto'
-            } ${template.title === 'Mind Mapping' ? 'p-0 overflow-hidden' : 'p-8'}`}
+            } ${['Mind Mapping', 'Service Blueprint'].includes(template.title) ? 'p-0 overflow-hidden' : 'p-8 overflow-y-auto'}`}
             style={{ 
               width: showPreview && !NO_PREVIEW_TEMPLATES.includes(template.title) 
                 ? `${editorWidth}%` 
@@ -303,7 +303,7 @@ export default function Editor() {
                   : '80%' 
             }}
         >
-           {template.title !== 'Mind Mapping' && (
+           {!['Mind Mapping', 'Service Blueprint'].includes(template.title) && (
              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-8 text-blue-800 dark:text-blue-200 text-sm whitespace-pre-wrap">
                <strong>Guidance:</strong> {template.description}
              </div>

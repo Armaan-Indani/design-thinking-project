@@ -70,9 +70,9 @@ export default function ProjectView() {
       </header>
 
       <main className="flex-1 max-w-full mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 overflow-x-auto">
-        <div className="flex gap-4 h-full min-w-max">
+        <div className="flex gap-4 h-full w-full">
           {STAGES.map((stage) => (
-            <div key={stage} className="w-80 bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-full min-h-[400px] border dark:border-gray-700 shrink-0">
+            <div key={stage} className="flex-1 min-w-0 bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-full min-h-[400px] border dark:border-gray-700">
               <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 rounded-t-lg">
                 <h3 className="font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide text-xs">{stage}</h3>
               </div>
