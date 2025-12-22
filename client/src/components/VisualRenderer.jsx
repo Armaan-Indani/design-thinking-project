@@ -966,7 +966,8 @@ const VisualRenderer = ({ template, content, innerRef }) => {
 
     const padding = 50;
     const width = Math.max(800, maxX - minX + padding * 2);
-    const height = Math.max(600, maxY - minY + padding * 2);
+    // Add extra height to account for the +80px title shift in getNormPos
+    const height = Math.max(600, maxY - minY + padding * 2 + 100);
 
     const getNormPos = (pos) => ({
         x: pos.x - minX + padding,
@@ -987,25 +988,34 @@ const VisualRenderer = ({ template, content, innerRef }) => {
                     const sPos = getNormPos(source.position);
                     const tPos = getNormPos(target.position);
                     
-                    // Simple estimation of center
-                    const sW = source.style?.width ? parseInt(source.style.width) : (source.type === 'imageNode' ? 200 : 100); 
-                    const sH = source.style?.height ? parseInt(source.style.height) : (source.type === 'imageNode' ? 150 : 40);
-                    const tW = target.style?.width ? parseInt(target.style.width) : (target.type === 'imageNode' ? 200 : 100);
-                    const tH = target.style?.height ? parseInt(target.style.height) : (target.type === 'imageNode' ? 150 : 40);
+                    // Robust dimension reading
+                    const sWVal = source.style?.width ?? source.width ?? (source.type === 'imageNode' ? 200 : 100);
+                    const sHVal = source.style?.height ?? source.height ?? (source.type === 'imageNode' ? 150 : 40);
+                    const sW = typeof sWVal === 'string' ? parseInt(sWVal) : sWVal;
+                    const sH = typeof sHVal === 'string' ? parseInt(sHVal) : sHVal;
 
-                    const x1 = sPos.x + sW/2;
-                    const y1 = sPos.y + sH/2;
-                    const x2 = tPos.x + tW/2;
-                    const y2 = tPos.y + tH/2;
+                    const tWVal = target.style?.width ?? target.width ?? (target.type === 'imageNode' ? 200 : 100);
+                    const tHVal = target.style?.height ?? target.height ?? (target.type === 'imageNode' ? 150 : 40);
+                    const tW = typeof tWVal === 'string' ? parseInt(tWVal) : tWVal;
+                    const tH = typeof tHVal === 'string' ? parseInt(tHVal) : tHVal;
+
+                    // Calculate connection points: Source Right -> Target Left
+                    const x1 = sPos.x + sW;
+                    const y1 = sPos.y + sH / 2;
+                    const x2 = tPos.x;
+                    const y2 = tPos.y + tH / 2;
+
+                    // Cubic Bezier Control Points
+                    const dist = Math.abs(x2 - x1) * 0.5;
+                    const cp1x = x1 + dist;
+                    const cp1y = y1;
+                    const cp2x = x2 - dist;
+                    const cp2y = y2;
                     
-                    // Draw Edge Label (Midpoint)
-                    const midX = (x1 + x2) / 2;
-                    const midY = (y1 + y2) / 2;
-
                     return (
                         <g key={edge.id}>
                             <path 
-                               d={`M${x1},${y1} Q${(x1+x2)/2},${y1} ${x2},${y2}`} 
+                               d={`M${x1},${y1} C${cp1x},${cp1y} ${cp2x},${cp2y} ${x2},${y2}`} 
                                stroke={edge.style?.stroke || "#cbd5e1"} 
                                strokeWidth="2" 
                                fill="none" 
@@ -1015,7 +1025,7 @@ const VisualRenderer = ({ template, content, innerRef }) => {
                 })}
             </svg>
             
-            {/* Edge Labels (HTML for easier text handling) */}
+            {/* Edge Labels */}
             {edges.map(edge => {
                  if (!edge.label) return null;
                  const source = nodes.find(n => n.id === edge.source);
@@ -1024,17 +1034,25 @@ const VisualRenderer = ({ template, content, innerRef }) => {
 
                  const sPos = getNormPos(source.position);
                  const tPos = getNormPos(target.position);
-                 const sW = source.style?.width ? parseInt(source.style.width) : (source.type === 'imageNode' ? 200 : 100); 
-                 const sH = source.style?.height ? parseInt(source.style.height) : (source.type === 'imageNode' ? 150 : 40);
-                 const tW = target.style?.width ? parseInt(target.style.width) : (target.type === 'imageNode' ? 200 : 100);
-                 const tH = target.style?.height ? parseInt(target.style.height) : (target.type === 'imageNode' ? 150 : 40);
+                 
+                 const sWVal = source.style?.width ?? source.width ?? (source.type === 'imageNode' ? 200 : 100);
+                 const sHVal = source.style?.height ?? source.height ?? (source.type === 'imageNode' ? 150 : 40);
+                 const sW = typeof sWVal === 'string' ? parseInt(sWVal) : sWVal;
+                 const sH = typeof sHVal === 'string' ? parseInt(sHVal) : sHVal;
 
-                 const x1 = sPos.x + sW/2;
-                 const y1 = sPos.y + sH/2;
-                 const x2 = tPos.x + tW/2;
-                 const y2 = tPos.y + tH/2;
-                 const midX = (x1 + x2) / 2;
-                 const midY = (y1 + y2) / 2;
+                 const tWVal = target.style?.width ?? target.width ?? (target.type === 'imageNode' ? 200 : 100);
+                 const tHVal = target.style?.height ?? target.height ?? (target.type === 'imageNode' ? 150 : 40);
+                 const tW = typeof tWVal === 'string' ? parseInt(tWVal) : tWVal;
+                 const tH = typeof tHVal === 'string' ? parseInt(tHVal) : tHVal;
+
+                 const x1 = sPos.x + sW;
+                 const y1 = sPos.y + sH / 2;
+                 const x2 = tPos.x;
+                 const y2 = tPos.y + tH / 2;
+                 
+                 // Beizer midpoint approximation (t=0.5)
+                 const midX = 0.125 * x1 + 0.375 * (x1 + Math.abs(x2 - x1) * 0.5) + 0.375 * (x2 - Math.abs(x2 - x1) * 0.5) + 0.125 * x2;
+                 const midY = 0.125 * y1 + 0.375 * y1 + 0.375 * y2 + 0.125 * y2;
 
                  return (
                      <div key={`lbl-${edge.id}`} style={{
@@ -1058,17 +1076,18 @@ const VisualRenderer = ({ template, content, innerRef }) => {
             {nodes.map(node => {
                 const pos = getNormPos(node.position);
                 if (node.type === 'imageNode') {
-                     // Robust width reading: check style.width (string px) -> default
-                     const w = node.style?.width ? node.style.width : '200px';
-                     const h = node.style?.height ? node.style.height : '150px';
+                     const wVal = node.style?.width ?? node.width ?? 200;
+                     const hVal = node.style?.height ?? node.height ?? 150;
+                     const w = typeof wVal === 'number' ? `${wVal}px` : wVal;
+                     const h = typeof hVal === 'number' ? `${hVal}px` : hVal;
 
                      return (
                         <div key={node.id} style={{
                             position: 'absolute',
                             left: pos.x,
                             top: pos.y,
-                            width: String(w).endsWith('px') ? w : `${w}px`,
-                            height: String(h).endsWith('px') ? h : `${h}px`,
+                            width: w,
+                            height: h,
                             border: '1px solid #e2e8f0',
                             borderRadius: '8px',
                             overflow: 'hidden',
