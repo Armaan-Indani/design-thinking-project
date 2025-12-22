@@ -849,6 +849,100 @@ const VisualRenderer = ({ template, content, innerRef }) => {
       );
   }
 
+  // --- Service Blueprint Layout ---
+  if (template.title === 'Service Blueprint') {
+    // Data normalization: Support both old 'steps' (columns) and new 'rowItems' (independent rows)
+    let rowItems = data.rowItems;
+    if (!rowItems && data.steps) {
+       // Migrate on the fly for display
+       rowItems = { emotions: [], actions: [], touchpoints: [], frontstage: [], backstage: [], support: [] };
+       data.steps.forEach(step => {
+          ['emotions', 'actions', 'touchpoints', 'frontstage', 'backstage', 'support'].forEach(key => {
+             if (step[key]) rowItems[key].push({ id: Math.random(), text: step[key] });
+          });
+       });
+    }
+    // Fallback if empty
+    if (!rowItems) rowItems = { emotions: [], actions: [], touchpoints: [], frontstage: [], backstage: [], support: [] };
+
+    const rows = [
+      { id: 'emotions', label: 'Customer Emotions', bg: '#fb923c', border: '#fdba74', boxBg: '#ffedd5', boxBorder: '#fdba74', textColor: '#1f2937' }, // orange-400
+      { id: 'actions', label: 'Customer Actions', bg: '#f97316', border: '#fdba74', boxBg: '#fed7aa', boxBorder: '#fdba74', textColor: '#1f2937' }, // orange-500
+      { id: 'touchpoints', label: 'Touch Points', bg: '#fbbf24', border: '#fcd34d', boxBg: '#fde68a', boxBorder: '#fcd34d', textColor: '#1f2937' }, // amber-400
+      { id: 'frontstage', label: 'Frontstage', bg: '#14b8a6', border: '#5eead4', boxBg: '#99f6e4', boxBorder: '#5eead4', textColor: '#1f2937' }, // teal-200
+      { id: 'backstage', label: 'Backstage', bg: '#1d4ed8', border: '#60a5fa', boxBg: '#2563eb', boxBorder: '#60a5fa', textColor: '#ffffff' }, // blue-600
+      { id: 'support', label: 'Support Processes', bg: '#6b21a8', border: '#a855f7', boxBg: '#581c87', boxBorder: '#a855f7', textColor: '#ffffff' }, // purple-900
+    ];
+
+    const separatorStyle = {
+      backgroundColor: '#374151',
+      color: 'white',
+      fontSize: '12px',
+      fontWeight: 'bold',
+      padding: '4px 16px',
+      textAlign: 'center',
+      borderTop: '1px dashed white',
+      borderBottom: '1px dashed white',
+      lineHeight: '1',
+      width: '100%'
+    };
+
+    return (
+       <div ref={innerRef} style={{ ...baseStyle, padding: '32px', width: 'fit-content', minWidth: '1200px' }}>
+          <h1 style={h1Style}>{template.title}</h1>
+          <div style={{ display: 'flex', flexDirection: 'column', border: '1px solid #e5e7eb', boxShadow: shadowStyle }}>
+             {rows.map(row => (
+                <div key={row.id} style={{ display: 'flex', flexDirection: 'column' }}>
+                   {/* Separators */}
+                   {row.id === 'frontstage' && <div style={separatorStyle}>Line of Interaction</div>}
+                   {row.id === 'backstage' && <div style={separatorStyle}>Line of Visibility</div>}
+                   {row.id === 'support' && <div style={separatorStyle}>Line of Internal Interaction</div>}
+
+                   <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb', minHeight: '150px' }}>
+                     {/* Header */}
+                     <div style={{ width: '200px', backgroundColor: row.bg, padding: '16px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', textAlign: 'center', flexShrink: 0 }}>
+                        {row.label}
+                     </div>
+                     {/* Independent Items (Space Around) */}
+                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '16px', backgroundColor: '#f9fafb' }}>
+                        {(rowItems[row.id] || []).map((item, idx, arr) => (
+                           <div key={item.id || idx} style={{ minWidth: '180px', maxWidth: '400px', position: 'relative', margin: '0 16px', flexShrink: 0 }}>
+                              <div style={{ 
+                                 padding: '12px', 
+                                 backgroundColor: row.boxBg,
+                                 border: `1px solid ${row.boxBorder}`,
+                                 borderRadius: '4px',
+                                 minHeight: row.id === 'backstage' || row.id === 'support' ? '128px' : '96px', // 8rem / 6rem approx
+                                 fontSize: '14px',
+                                 whiteSpace: 'pre-wrap',
+                                 wordBreak: 'break-word',
+                                 color: row.textColor
+                              }}>
+                                 {item.text}
+                              </div>
+                              {/* Arrow */}
+                              {idx < arr.length - 1 && row.id !== 'emotions' && (
+                                 <div style={{ position: 'absolute', right: '-24px', top: '50%', transform: 'translateY(-50%)', zIndex: 10, color: '#9ca3af', fontSize: '20px' }}>
+                                    →
+                                 </div>
+                              )}
+                           </div>
+                        ))}
+                        {(rowItems[row.id] || []).length === 0 && (
+                           <div style={{ color: '#9ca3af', fontStyle: 'italic', fontSize: '14px' }}>No items</div>
+                        )}
+                     </div>
+                   </div>
+                </div>
+             ))}
+          </div>
+          <div style={{ marginTop: '48px', paddingTop: '16px', borderTop: `1px solid ${colors.gray200}`, textAlign: 'center', fontSize: '14px', color: colors.gray400 }}>
+             Generated by Design Thinking Platform
+          </div>
+       </div>
+    );
+  }
+
   // --- Default List Layout ---
   const sections = template.content && typeof template.content === 'string'
     ? JSON.parse(template.content).sections

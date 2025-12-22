@@ -10,6 +10,7 @@ import PaperPrototypeCanvas from '../components/editors/PaperPrototypeCanvas';
 import StoryboardEditor from '../components/editors/StoryboardEditor';
 import FeedbackEditor from '../components/editors/FeedbackEditor';
 import BusinessModelCanvas from '../components/editors/BusinessModelCanvas';
+import ServiceBlueprintEditor from '../components/editors/ServiceBlueprintEditor';
 import ThemeToggle from '../components/ThemeToggle';
 import ConfirmDialog from '../components/ConfirmDialog';
 import AutoBulletTextArea from '../components/AutoBulletTextArea';
@@ -331,6 +332,11 @@ export default function Editor() {
               />
            ) : template.title === 'Business Model Canvas' ? (
               <BusinessModelCanvas
+                content={formData}
+                onUpdate={handleContentUpdate}
+              />
+           ) : template.title === 'Service Blueprint' ? (
+              <ServiceBlueprintEditor 
                 content={formData}
                 onUpdate={handleContentUpdate}
               />
