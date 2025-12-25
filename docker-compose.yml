@@ -6,8 +6,11 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=file:./dev.db
+      - DATABASE_URL=postgresql://postgres:password@db:5432/design_thinking_db?schema=public
       - JWT_SECRET=supersecret_change_me_in_prod
+    command: sh -c "npx prisma db push && npm run seed && npm start"
+    depends_on:
+      - db
     volumes:
       - ./server/prisma:/app/prisma
     restart: unless-stopped
@@ -21,3 +24,18 @@ services:
     depends_on:
       - server
     restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: design_thinking_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
