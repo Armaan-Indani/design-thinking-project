@@ -1,13 +1,22 @@
-const { PrismaClient } = require('@prisma/client');
-require('dotenv').config();
+import { v4 as uuidv4 } from 'uuid';
 
-// Fix for "Unknown property datasourceUrl" is handled by just using default constructor
-// if env var is set correctly, which it is.
-const prisma = new PrismaClient();
+/**
+ * Storage Service - Local Storage Implementation
+ * Replaces backend API calls
+ */
 
-const templates = [
+const STORAGE_KEYS = {
+  PROJECTS: 'dt_projects',
+  DOCUMENTS: 'dt_documents',
+  TEMPLATES: 'dt_templates',
+  VERSION: 'dt_version' // For potential migrations
+};
+
+// Seed Data (from original server/prisma/seed.js)
+const DEFAULT_TEMPLATES = [
   // --- Empathize Phase ---
   {
+    id: 'empathy-map',
     title: 'Empathy Map',
     description: 'Visualize what users say, think, do, and feel.',
     phase: 'Empathize',
@@ -22,6 +31,7 @@ const templates = [
     }
   },
   {
+    id: 'user-persona',
     title: 'User Persona',
     description: 'Create a fictional character that represents your user.',
     phase: 'Empathize',
@@ -40,15 +50,16 @@ const templates = [
     }
   },
   {
+    id: 'user-journey-map',
     title: 'User Journey Map',
     description: 'Map out the user\'s experience step-by-step.',
     phase: 'Empathize',
     content: {
-      // Custom editor manages the structure internally (grid object)
       description: 'The editor will initialize default stages and rows.'
     }
   },
   {
+    id: 'user-interviews',
     title: 'User Interviews',
     description: 'Structure for conducting and recording user interviews.',
     phase: 'Empathize',
@@ -63,19 +74,21 @@ const templates = [
     }
   },
   {
+    id: 'questionnaire',
     title: 'Questionnaire',
     description: 'List of questions to ask during user research.',
     phase: 'Empathize',
     content: {
       sections: [
         { id: 'userType', label: 'User Type', type: 'text', placeholder: 'e.g. Student, Professional, Admin' },
-        { id: 'questions', label: 'Questions', type: 'textarea', placeholder: '1. What is your first question?\n2. What is your second question?\n...' },
+        { id: 'questions', label: 'Questions', type: 'textarea', placeholder: '1. What is your first question?\\n2. What is your second question?\\n...' },
       ]
     }
   },
 
   // --- Define Phase ---
   {
+    id: 'problem-statement',
     title: 'Problem Statement (Customer-Centric)',
     description: 'Define the core problem from the customer\'s perspective.',
     phase: 'Define',
@@ -89,6 +102,7 @@ const templates = [
     }
   },
   {
+    id: 'user-needs',
     title: 'User Needs Framework',
     description: 'Categorize and prioritize user needs.',
     phase: 'Define',
@@ -103,6 +117,7 @@ const templates = [
 
   // --- Ideate Phase ---
   {
+    id: 'scamper',
     title: 'SCAMPER',
     description: 'Brainstorming technique: Substitute, Combine, Adapt, Modify, Put to other uses, Eliminate, Reverse.',
     phase: 'Ideate',
@@ -119,6 +134,7 @@ const templates = [
     }
   },
   {
+    id: 'disrupt',
     title: 'DISRUPT',
     description: 'Lateral thinking technique to generate disruptive ideas.',
     phase: 'Ideate',
@@ -135,17 +151,18 @@ const templates = [
     }
   },
   {
+    id: 'idea-categorization',
     title: 'Idea Categorization',
     description: 'Sort ideas into categories.',
     phase: 'Ideate',
     content: {
-      // Custom editor manages the structure internally (categories array)
       description: 'The editor will initialize default categories.'
     }
   },
   {
+    id: 'hmw-questions',
     title: 'How Might We Questions',
-    description: 'Reframe problems as opportunities.\nFormula: How Might We + Intended Action (as an action verb) + For + Potential User (as the subject) + So That + Desired Outcome',
+    description: 'Reframe problems as opportunities.\\nFormula: How Might We + Intended Action (as an action verb) + For + Potential User (as the subject) + So That + Desired Outcome',
     phase: 'Ideate',
     content: {
       sections: [
@@ -157,26 +174,27 @@ const templates = [
 
   // --- Prototype Phase ---
   {
+    id: 'paper-prototypes',
     title: 'Paper Prototypes',
     description: 'Sketch out screens and flows. Upload images, annotate, and connect them.',
     phase: 'Prototype',
     content: {
-      // Custom editor manages the structure internally (nodes/edges)
       description: 'The editor will initialize the canvas.'
     }
   },
   {
+    id: 'storyboarding',
     title: 'Storyboarding',
     description: 'Visualize the user\'s experience with the solution.',
     phase: 'Prototype',
     content: {
-      // Custom editor manages the structure internally (frames array)
       description: 'The editor will initialize default frames.'
     }
   },
 
   // --- Test Phase ---
   {
+    id: 'usability-testing',
     title: 'Usability Testing Checklist',
     description: 'Prepare for usability testing sessions.',
     phase: 'Test',
@@ -189,15 +207,16 @@ const templates = [
     }
   },
   {
+    id: 'feedback-form',
     title: 'Feedback Form',
     description: 'Collect structured feedback.',
     phase: 'Test',
     content: {
-      // Custom editor manages the structure internally (items array)
       description: 'The editor will initialize default questions.'
     }
   },
   {
+    id: 'user-interviews-validation',
     title: 'User Interviews (Validation)',
     description: 'Validate assumptions with users.',
     phase: 'Test',
@@ -264,46 +283,135 @@ const templates = [
   }
 ];
 
-async function main() {
-  console.log('Start seeding ...');
-  for (const t of templates) {
-    // Check duplication by title AND phase to allow similar names in different phases
-    const existing = await prisma.template.findFirst({
-      where: { 
-        title: t.title,
-        phase: t.phase
-      }
-    });
-    
-    if (!existing) {
-      const template = await prisma.template.create({
-        data: {
-          title: t.title,
-          description: t.description,
-          phase: t.phase,
-          content: JSON.stringify(t.content),
-        },
-      });
-      console.log(`Created template: ${template.title} (${template.phase})`);
-    } else {
-      console.log(`Updating existing template: ${t.title} (${t.phase})`);
-      await prisma.template.update({
-        where: { id: existing.id },
-        data: {
-          content: JSON.stringify(t.content),
-          description: t.description
-        }
-      });
+// Initialize Helper
+const initStorage = () => {
+    if (!localStorage.getItem(STORAGE_KEYS.TEMPLATES)) {
+        localStorage.setItem(STORAGE_KEYS.TEMPLATES, JSON.stringify(DEFAULT_TEMPLATES));
     }
-  }
-  console.log('Seeding finished.');
-}
+};
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+// Data Access Object
+export const storage = {
+    // Projects
+    getProjects: async () => {
+        initStorage();
+        const projects = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROJECTS) || '[]');
+        return { data: projects };
+    },
+
+    getProject: async (id) => {
+        initStorage();
+        const projects = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROJECTS) || '[]');
+        const project = projects.find(p => p.id === id);
+        if (!project) throw new Error("Project not found");
+        return { data: project };
+    },
+
+    createProject: async (data) => {
+        const projects = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROJECTS) || '[]');
+        const newProject = {
+            id: uuidv4(),
+            name: data.name,
+            description: data.description,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        projects.push(newProject);
+        localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(projects));
+        return { data: newProject };
+    },
+
+    deleteProject: async (id) => {
+        const projects = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROJECTS) || '[]');
+        const filtered = projects.filter(p => p.id !== id);
+        localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(filtered));
+        
+        // Cascade delete documents
+        const documents = JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCUMENTS) || '[]');
+        const filteredDocs = documents.filter(d => d.projectId !== id);
+        localStorage.setItem(STORAGE_KEYS.DOCUMENTS, JSON.stringify(filteredDocs));
+        
+        return { data: { success: true } };
+    },
+
+    // Templates
+    getTemplates: async () => {
+        initStorage();
+        const templates = JSON.parse(localStorage.getItem(STORAGE_KEYS.TEMPLATES) || '[]');
+        return { data: templates };
+    },
+    
+    getTemplate: async (id) => {
+        initStorage();
+        const templates = JSON.parse(localStorage.getItem(STORAGE_KEYS.TEMPLATES) || '[]');
+        const template = templates.find(t => t.id === id);
+        if (!template) throw new Error("Template not found");
+        return { data: template };
+    },
+
+    // Documents
+    getDocuments: async (projectId) => {
+        const documents = JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCUMENTS) || '[]');
+        const templates = JSON.parse(localStorage.getItem(STORAGE_KEYS.TEMPLATES) || '[]');
+        
+        // Filter by project and join with template data
+        const projectDocs = documents
+            .filter(d => d.projectId === projectId)
+            .map(d => ({
+                ...d,
+                template: templates.find(t => t.id === d.templateId)
+            }));
+            
+        return { data: projectDocs };
+    },
+
+    getDocument: async (id) => {
+        const documents = JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCUMENTS) || '[]');
+        const doc = documents.find(d => d.id === id);
+        if (!doc) throw new Error("Document not found");
+
+        const templates = JSON.parse(localStorage.getItem(STORAGE_KEYS.TEMPLATES) || '[]');
+        const template = templates.find(t => t.id === doc.templateId);
+        
+        const projects = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROJECTS) || '[]');
+        const project = projects.find(p => p.id === doc.projectId);
+
+        return { data: { ...doc, template, project } };
+    },
+
+    createDocument: async (data) => {
+        const documents = JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCUMENTS) || '[]');
+        const newDoc = {
+            id: uuidv4(),
+            projectId: data.projectId,
+            templateId: data.templateId,
+            content: JSON.stringify(data.content),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        documents.push(newDoc);
+        localStorage.setItem(STORAGE_KEYS.DOCUMENTS, JSON.stringify(documents));
+        return { data: newDoc };
+    },
+
+    updateDocument: async (id, data) => {
+        const documents = JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCUMENTS) || '[]');
+        const index = documents.findIndex(d => d.id === id);
+        if (index === -1) throw new Error("Document not found");
+
+        documents[index] = {
+            ...documents[index],
+            content: JSON.stringify(data.content),
+            updatedAt: new Date().toISOString()
+        };
+        localStorage.setItem(STORAGE_KEYS.DOCUMENTS, JSON.stringify(documents));
+        return { data: documents[index] };
+    },
+
+    deleteDocument: async (id) => {
+        const documents = JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCUMENTS) || '[]');
+        const filtered = documents.filter(d => d.id !== id);
+        localStorage.setItem(STORAGE_KEYS.DOCUMENTS, JSON.stringify(filtered));
+        return { data: { success: true } };
+    }
+};

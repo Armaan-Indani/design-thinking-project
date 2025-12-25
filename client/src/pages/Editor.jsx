@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import * as htmlToImage from 'html-to-image';
 import { Download, Eye, EyeOff, GripVertical } from 'lucide-react';
 import VisualRenderer from '../components/VisualRenderer';
@@ -16,6 +15,7 @@ import ThemeToggle from '../components/ThemeToggle';
 import ConfirmDialog from '../components/ConfirmDialog';
 import AutoBulletTextArea from '../components/AutoBulletTextArea';
 import NotFound from './NotFound';
+import { storage } from '../lib/storage';
 
 const NO_PREVIEW_TEMPLATES = [
   'Paper Prototypes',
@@ -102,7 +102,7 @@ export default function Editor() {
     try {
       if (id) {
         // Edit existing document
-        const res = await axios.get(`http://localhost:3000/api/documents/${id}`);
+        const res = await storage.getDocument(id);
         setDoc(res.data);
         setTemplate(res.data.template);
         setProject(res.data.project);
@@ -110,17 +110,15 @@ export default function Editor() {
       } else {
         // New document from template
         const [tempRes, projRes] = await Promise.all([
-          axios.get(`http://localhost:3000/api/templates/${templateId}`),
-          axios.get(`http://localhost:3000/api/projects/${projectId}`)
+          storage.getTemplate(templateId),
+          storage.getProject(projectId)
         ]);
         setTemplate(tempRes.data);
         setProject(projRes.data);
       }
     } catch (error) {
       console.error("Failed to load editor data", error);
-      if (error.response && error.response.status === 404) {
         setTemplate(null);
-      }
     } finally {
       setLoading(false);
     }
@@ -162,12 +160,12 @@ export default function Editor() {
     try {
       if (doc) {
         // Update
-        await axios.put(`http://localhost:3000/api/documents/${doc.id}`, {
+        await storage.updateDocument(doc.id, {
           content: formData
         });
       } else {
         // Create
-        const res = await axios.post('http://localhost:3000/api/documents', {
+        const res = await storage.createDocument({
           projectId,
           templateId,
           content: formData

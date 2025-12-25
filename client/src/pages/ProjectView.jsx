@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
 import { ChevronRight, FileText, Trash2 } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import NotFound from './NotFound';
+import { storage } from '../lib/storage';
 
 const STAGES = ['Empathize', 'Define', 'Ideate', 'Prototype', 'Test', 'Other'];
 
@@ -21,18 +21,17 @@ export default function ProjectView() {
   const fetchData = async () => {
     try {
       const [projRes, tempRes, docRes] = await Promise.all([
-        axios.get(`http://localhost:3000/api/projects/${id}`),
-        axios.get('http://localhost:3000/api/templates'),
-        axios.get(`http://localhost:3000/api/documents?projectId=${id}`)
+        storage.getProject(id),
+        storage.getTemplates(),
+        storage.getDocuments(id)
       ]);
       setProject(projRes.data);
       setTemplates(tempRes.data);
       setDocuments(docRes.data);
     } catch (error) {
       console.error("Failed to load project data", error);
-      if (error.response && error.response.status === 404) {
-        setProject(null);
-      }
+      // In local storage, 404 is an error throw, handle accordingly
+      setProject(null);
     } finally {
       setLoading(false);
     }
@@ -43,7 +42,7 @@ export default function ProjectView() {
     if (!window.confirm("Are you sure you want to delete this document?")) return;
 
     try {
-      await axios.delete(`http://localhost:3000/api/documents/${docId}`);
+      await storage.deleteDocument(docId);
       setDocuments(documents.filter(d => d.id !== docId));
     } catch (error) {
       console.error("Failed to delete document", error);

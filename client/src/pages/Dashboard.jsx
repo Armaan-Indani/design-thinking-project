@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { Plus, Trash2 } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
+import { storage } from '../lib/storage';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -19,7 +19,7 @@ export default function Dashboard() {
 
   const fetchProjects = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/projects');
+      const res = await storage.getProjects();
       setProjects(res.data);
     } catch (error) {
       console.error("Failed to fetch projects", error);
@@ -31,7 +31,7 @@ export default function Dashboard() {
   const createProject = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3000/api/projects', {
+      await storage.createProject({
         name: newProjectName,
         description: newProjectDesc
       });
@@ -50,7 +50,7 @@ export default function Dashboard() {
     if (!window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) return;
 
     try {
-      await axios.delete(`http://localhost:3000/api/projects/${projectId}`);
+      await storage.deleteProject(projectId);
       setProjects(projects.filter(p => p.id !== projectId));
     } catch (error) {
       console.error("Failed to delete project", error);
@@ -65,11 +65,12 @@ export default function Dashboard() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">Design Thinking Platform</h1>
+              <span className="ml-2 px-2 py-0.5 rounded text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">Local Mode</span>
             </div>
             <div className="flex items-center space-x-4">
               <ThemeToggle />
               <span className="text-gray-700 dark:text-gray-300">Welcome, {user?.name}</span>
-              <button onClick={logout} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">Logout</button>
+               {/* Logout removed or repurposed */}
             </div>
           </div>
         </div>
@@ -105,7 +106,8 @@ export default function Dashboard() {
                     </button>
                   </div>
                   <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{project.description || 'No description'}</p>
-                  <div className="mt-4">
+                  <p className="mt-4 text-xs text-gray-400">Created: {new Date(project.createdAt).toLocaleDateString()}</p>
+                  <div className="mt-2">
                     <Link
                       to={`/project/${project.id}`}
                       className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
