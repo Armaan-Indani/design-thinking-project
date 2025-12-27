@@ -7,6 +7,15 @@ import { storage } from '../lib/storage';
 
 const STAGES = ['Empathize', 'Define', 'Ideate', 'Prototype', 'Test', 'Other'];
 
+const STAGE_DESCRIPTIONS = {
+  'Empathize': "Understand your users' needs",
+  'Define': "Frame the core problem",
+  'Ideate': "Generate innovative solutions",
+  'Prototype': "Create tangible representations",
+  'Test': "Validate with real users",
+  'Other': "General project resources"
+};
+
 export default function ProjectView() {
   const { id } = useParams();
   const [project, setProject] = useState(null);
@@ -74,6 +83,7 @@ export default function ProjectView() {
             <div key={stage} className="flex-1 min-w-0 bg-white dark:bg-gray-800 rounded-lg shadow flex flex-col h-full min-h-[400px] border dark:border-gray-700">
               <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 rounded-t-lg">
                 <h3 className="font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide text-xs">{stage}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{STAGE_DESCRIPTIONS[stage]}</p>
               </div>
               <div className="p-4 flex-1 space-y-4 overflow-y-auto">
                 {/* Existing Documents */}
