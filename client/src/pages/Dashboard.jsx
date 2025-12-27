@@ -64,7 +64,7 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Design Thinking Platform</h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Envision</h1>
               <span className="ml-2 px-2 py-0.5 rounded text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">Local Mode</span>
             </div>
             <div className="flex items-center space-x-4">

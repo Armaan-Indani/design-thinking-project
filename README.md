@@ -1,4 +1,4 @@
-# Design Thinking Project Planner
+# Envision
 
 A comprehensive web application designed to guide teams and individuals through the Design Thinking process. This tool provides structured templates, interactive visual editors, and document management features to streamline the journey from Empathy to Testing.
 
