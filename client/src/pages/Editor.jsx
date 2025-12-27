@@ -216,7 +216,7 @@ export default function Editor() {
           display: 'block',
           transform: 'none' // Ensure no transforms move it away
         },
-        width: input.scrollWidth + 50, // Capture full width with buffer
+        width: input.scrollWidth, // Capture full width perfectly
         height: input.scrollHeight // Capture full height
       });
 

@@ -28,7 +28,7 @@ const VisualRenderer = ({ template, content, innerRef }) => {
   const data = content || {};
 
   // Common styles
-  const baseStyle = { fontFamily: 'sans-serif', backgroundColor: colors.white, minWidth: '800px', boxSizing: 'border-box' };
+  const baseStyle = { fontFamily: 'sans-serif', backgroundColor: colors.white, color: colors.gray900, minWidth: '800px', boxSizing: 'border-box' };
   const h1Style = { fontSize: '36px', fontWeight: 'bold', color: colors.gray900, marginBottom: '8px', borderBottom: `2px solid ${colors.gray200}`, paddingBottom: '16px' };
   const h2Style = { fontSize: '30px', fontWeight: 'bold', textAlign: 'center', marginBottom: '24px', color: colors.gray900 };
   const h3Style = { fontSize: '20px', fontWeight: 'bold', marginBottom: '12px', color: colors.gray800 };
@@ -43,6 +43,10 @@ const VisualRenderer = ({ template, content, innerRef }) => {
     return (
       <div ref={innerRef} style={{ ...baseStyle, padding: '32px', minHeight: '600px' }}>
         <h2 style={h2Style}>{template.title}</h2>
+        {/* User Type Display */}
+        <div style={{ textAlign: 'center', marginBottom: '24px', fontSize: '18px', color: colors.gray700 }}>
+           <span style={{ fontWeight: '600' }}>User Type:</span> {data.userType || <span style={{ fontStyle: 'italic', color: colors.gray400 }}>Not defined</span>}
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '600px', border: `2px solid ${colors.gray800}`, position: 'relative' }}>
 
 
